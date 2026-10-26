@@ -3,7 +3,7 @@ import { bsonTypeOf, displayValue, entriesOf, fromEJSON, valueKey } from './bson
 import { diffDocuments, diffStats, pairDocuments, type DiffNode } from './diff';
 import { toShell, toShellTokens } from './shell';
 import { MESSAGES, resolveLocale } from './i18n';
-import { rowToggle } from './toggle';
+import { rowToggle, toggledIndex } from './toggle';
 
 const relaxedDoc = {
   _id: { $oid: '6adedc58761ef473c665d0fb' },
@@ -169,6 +169,15 @@ describe('rowToggle', () => {
     selected = "ObjectId('6adedc58')";
     onClick({} as never);
     expect(toggles).toBe(1);
+  });
+});
+
+describe('toggledIndex', () => {
+  it('adds or removes one index without touching the original set', () => {
+    const collapsed = new Set([0, 2]);
+    expect([...toggledIndex(collapsed, 1)].sort()).toEqual([0, 1, 2]);
+    expect([...toggledIndex(collapsed, 2)]).toEqual([0]);
+    expect([...collapsed]).toEqual([0, 2]);
   });
 });
 

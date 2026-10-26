@@ -2,7 +2,8 @@ import { useT } from '../lib/i18n';
 import type { CapturedEvent } from '../lib/types';
 import { Banner, StatCards } from './Banner';
 import { DocumentList } from './DocumentList';
-import { PipelineView, QueryBar } from './QueryBar';
+import { PipelineView } from './Pipeline';
+import { QueryBar } from './QueryBar';
 
 function documentsOf(event: CapturedEvent): unknown[] {
   const docs = event.result?.documents;

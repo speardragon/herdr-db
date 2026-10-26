@@ -68,6 +68,10 @@ export const en = {
     stages: (n: number) => `${n} ${n === 1 ? 'stage' : 'stages'}`,
     stage: (n: number) => `Stage ${n}`,
     writes: 'writes',
+    collapseStage: 'Collapse stage',
+    expandStage: 'Expand stage',
+    collapseAll: 'Collapse all',
+    expandAll: 'Expand all',
   },
 
   write: {

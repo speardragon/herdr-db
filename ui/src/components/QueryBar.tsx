@@ -55,33 +55,3 @@ export function QueryBar({ input, children }: { input: Record<string, unknown>; 
     </div>
   );
 }
-
-/** Aggregation pipeline as Compass-like stage cards. */
-export function PipelineView({ pipeline }: { pipeline: unknown }) {
-  const t = useT();
-  const stages = Array.isArray(pipeline) ? pipeline : [];
-  return (
-    <section className="pipeline" aria-label={t.query.pipeline}>
-      <div className="toolbar">
-        <strong>{t.query.pipeline}</strong>
-        <span>{t.query.stages(stages.length)}</span>
-      </div>
-      {stages.map((stage, index) => {
-        const [operator = '?', body] = Object.entries((stage ?? {}) as Record<string, unknown>)[0] ?? [];
-        const writes = operator === '$out' || operator === '$merge';
-        return (
-          <div className="stage" key={index}>
-            <div className="stage-header">
-              <span className="event-time">{t.query.stage(index + 1)}</span>
-              <span className="stage-operator">{operator}</span>
-              {writes && <span className="badge badge-write">{t.query.writes}</span>}
-            </div>
-            <pre className="stage-body">
-              <ShellText value={body} />
-            </pre>
-          </div>
-        );
-      })}
-    </section>
-  );
-}

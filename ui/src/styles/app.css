@@ -466,9 +466,35 @@ code,
   font-size: 12px;
 }
 
+.stage-header {
+  cursor: pointer;
+  user-select: text;
+}
+
+.stage-header:hover {
+  background: var(--bg-hover);
+}
+
+.stage.is-collapsed .stage-header {
+  border-bottom: none;
+}
+
+.stage-header .caret {
+  margin-right: -4px;
+}
+
 .stage-operator {
   font-family: var(--font-code);
   font-weight: 600;
+}
+
+.stage-preview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--font-code);
 }
 
 .stage-body {

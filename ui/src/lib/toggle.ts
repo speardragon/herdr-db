@@ -11,3 +11,11 @@ export function rowToggle(toggle: () => void, selection: () => string = () => wi
     toggle();
   };
 }
+
+/** A copy of `set` with `index` flipped in or out, for keeping which list items are collapsed. */
+export function toggledIndex(set: ReadonlySet<number>, index: number): Set<number> {
+  const next = new Set(set);
+  if (next.has(index)) next.delete(index);
+  else next.add(index);
+  return next;
+}

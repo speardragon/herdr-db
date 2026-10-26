@@ -67,6 +67,10 @@ export const ko: Messages = {
     stages: (n) => `스테이지 ${n}개`,
     stage: (n) => `스테이지 ${n}`,
     writes: '쓰기',
+    collapseStage: '스테이지 접기',
+    expandStage: '스테이지 펼치기',
+    collapseAll: '모두 접기',
+    expandAll: '모두 펼치기',
   },
 
   write: {
