@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useT, type Messages } from '../lib/i18n';
-import { agentLabel, agentShortLabel, type EventSummary } from '../lib/types';
+import { agentLabel, type EventSummary } from '../lib/types';
+import { AgentLogo } from './AgentLogo';
 import { KindBadge } from './EventView';
 import { GearIcon, LeafIcon, TrashIcon } from './icons';
 
@@ -67,7 +68,7 @@ function EventItem({ event, selected, fresh, onSelect }: { event: EventSummary; 
   const t = useT();
   const { database, collection } = event.namespace;
   const where = event.herdr?.tabLabel || event.herdr?.workspaceLabel || event.project;
-  const meta = [agentShortLabel(event.agent), resultText(event, t), collection ? database : event.server, where].filter(Boolean);
+  const meta = [resultText(event, t), collection ? database : event.server, where].filter(Boolean);
   return (
     <li>
       <button type="button" className={`event-item${fresh ? ' fresh' : ''}`} aria-current={selected} onClick={onSelect}>
@@ -77,6 +78,7 @@ function EventItem({ event, selected, fresh, onSelect }: { event: EventSummary; 
         </span>
         <span className="event-time">{formatClock(event.ts)}</span>
         <span className="event-meta">
+          <AgentLogo agent={event.agent} size={12} title />
           {meta.map((part, index) => (
             <span key={index}>
               {index > 0 && <span className="sep">· </span>}

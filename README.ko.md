@@ -258,6 +258,11 @@ HERDR_DB_TEST_URI='mongodb://localhost:27017/?directConnection=true' npm test
 코드를 가져오지 않고 화면을 처음부터 새로 만들었습니다. Herdr DB는 MongoDB, Inc.와 관련이 없으며 보증을
 받지 않았습니다.
 
+Claude Code와 OpenAI 로고는 어느 에이전트가 호출했는지 표시하는 데만 씁니다. Claude와 Claude Code는
+Anthropic, PBC의 상표이고, OpenAI·ChatGPT·Codex는 OpenAI의 상표입니다. Herdr DB는 두 회사와 관련이
+없으며 보증을 받지 않았습니다. 로고는 [Simple Icons](https://simpleicons.org)(CC0)와
+[Lobe Icons](https://github.com/lobehub/lobe-icons)(MIT)에서 고치지 않고 가져왔습니다.
+
 ## 라이선스
 
 [MIT](LICENSE) © speardragon

@@ -18,6 +18,8 @@
   --accent-strong: #00a35c;
   --link: #016bf8;
   --key: #001e2b;
+  /* Claude Code's brand orange, the same in both themes. */
+  --brand-claude: #d97757;
 
   --value-number: #016ee9;
   --value-boolean: #cc3887;

@@ -259,6 +259,11 @@ The viewer's look follows [MongoDB Compass](https://github.com/mongodb-js/compas
 [LeafyGreen](https://github.com/mongodb/leafygreen-ui) palette. Compass is SSPL-licensed, so no code was
 copied; the views were written from scratch. Herdr DB is not affiliated with or endorsed by MongoDB, Inc.
 
+The Claude Code and OpenAI logos only mark which agent made a call. Claude and Claude Code are trademarks
+of Anthropic, PBC; OpenAI, ChatGPT and Codex are trademarks of OpenAI. Herdr DB is not affiliated with or
+endorsed by either. The marks come unmodified from [Simple Icons](https://simpleicons.org) (CC0) and
+[Lobe Icons](https://github.com/lobehub/lobe-icons) (MIT).
+
 ## License
 
 [MIT](LICENSE) © speardragon

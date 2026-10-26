@@ -9,10 +9,6 @@ export function agentLabel(agent: AgentId | undefined): string {
   return AGENT_LABELS[agent ?? 'claude'] ?? AGENT_LABELS.claude;
 }
 
-export function agentShortLabel(agent: AgentId | undefined): string {
-  return agent === 'codex' ? 'Codex' : 'Claude';
-}
-
 export interface HerdrContext {
   workspaceId: string | null;
   tabId: string | null;

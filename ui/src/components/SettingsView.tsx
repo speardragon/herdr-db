@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { getSettings, saveSettings, type AgentHookStatus, type AutoOpen, type Settings, type SettingsSnapshot, type ViewerMode } from '../lib/settings';
 import { useT, type LocalePreference, type Messages } from '../lib/i18n';
+import type { AgentId } from '../lib/types';
+import { AgentLogo } from './AgentLogo';
 import { Banner } from './Banner';
 
 type SaveState = { kind: 'idle' } | { kind: 'saving' } | { kind: 'saved' } | { kind: 'error'; message: string };
@@ -74,18 +76,28 @@ function hookState(hooks: AgentHookStatus, t: Messages): string {
   return hooks.detected ? t.settings.notInstalled : t.settings.notFound;
 }
 
+type StatusRow = [key: string, label: ReactNode, value: ReactNode];
+
 function StatusList({ status }: { status: SettingsSnapshot['status'] }) {
   const t = useT();
-  const rows: Array<[string, ReactNode]> = [
-    ...Object.values(status.hooks).map((hooks): [string, ReactNode] => [t.settings.hooks(hooks.label), hookState(hooks, t)]),
-    [t.settings.server, `http://127.0.0.1:${status.port}/`],
-    [t.settings.viewers, t.settings.viewersValue(status.viewers.app, status.viewers.browser)],
-    [t.settings.stored, t.settings.storedValue(status.events, status.home)],
+  const hookRows = (Object.entries(status.hooks) as Array<[AgentId, AgentHookStatus]>).map(([agent, hooks]): StatusRow => [
+    `hooks-${agent}`,
+    <span className="status-agent">
+      <AgentLogo agent={agent} />
+      {t.settings.hooks(hooks.label)}
+    </span>,
+    hookState(hooks, t),
+  ]);
+  const rows: StatusRow[] = [
+    ...hookRows,
+    ['server', t.settings.server, `http://127.0.0.1:${status.port}/`],
+    ['viewers', t.settings.viewers, t.settings.viewersValue(status.viewers.app, status.viewers.browser)],
+    ['stored', t.settings.stored, t.settings.storedValue(status.events, status.home)],
   ];
   return (
     <dl className="status-list">
-      {rows.map(([label, value]) => (
-        <div key={label}>
+      {rows.map(([key, label, value]) => (
+        <div key={key}>
           <dt>{label}</dt>
           <dd className="mono">{value}</dd>
         </div>

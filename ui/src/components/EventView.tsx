@@ -1,5 +1,6 @@
 import { useT } from '../lib/i18n';
 import { agentLabel, type CapturedEvent, type EventKind } from '../lib/types';
+import { AgentLogo } from './AgentLogo';
 import { Banner } from './Banner';
 import { DocumentList } from './DocumentList';
 import { AdminView, MetaView } from './MetaViews';
@@ -40,7 +41,10 @@ function EventHeader({ event }: { event: CapturedEvent }) {
       <div className="header-meta">
         <KindBadge kind={event.kind} status={event.status} />
         <span className="tool-chip">{event.tool}</span>
-        <span className={`agent-chip agent-${event.agent ?? 'claude'}`}>{agentLabel(event.agent)}</span>
+        <span className={`agent-chip agent-${event.agent ?? 'claude'}`}>
+          <AgentLogo agent={event.agent} />
+          {agentLabel(event.agent)}
+        </span>
         <span>{formatTime(event.ts)}</span>
         {event.durationMs != null && <span>{event.durationMs} ms</span>}
       </div>

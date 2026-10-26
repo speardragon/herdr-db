@@ -214,6 +214,7 @@ code,
   font-size: 11px;
   color: var(--text-muted);
   display: flex;
+  align-items: center;
   gap: 6px;
   overflow: hidden;
   white-space: nowrap;
@@ -292,6 +293,28 @@ code,
   line-height: 20px;
   background: var(--badge-meta-bg);
   color: var(--badge-meta-fg);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.agent-logo {
+  flex: none;
+}
+
+/* Brand colors: Claude Code's orange; the OpenAI mark is only ever black or white. */
+.agent-logo-claude {
+  color: var(--brand-claude);
+}
+
+.agent-logo-codex {
+  color: var(--text);
+}
+
+.status-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .icon-button {
@@ -1021,7 +1044,7 @@ code,
 
 .status-list div {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 150px 1fr;
   gap: 12px;
 }
 
