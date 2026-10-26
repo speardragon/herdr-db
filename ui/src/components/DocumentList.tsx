@@ -3,6 +3,7 @@ import { EJSON } from 'bson';
 import { fromEJSON } from '../lib/bson';
 import { useT } from '../lib/i18n';
 import { DocumentView } from './Document';
+import { JsonView } from './JsonView';
 import { CheckIcon, CopyIcon } from './icons';
 
 type ViewMode = 'list' | 'json';
@@ -41,7 +42,7 @@ function DocumentCard({ doc, mode, tone, tag }: { doc: unknown; mode: ViewMode; 
         <CopyButton text={() => toRelaxedJson(doc)} />
       </div>
       {tag && <div className="card-tag">{tag}</div>}
-      {mode === 'list' ? <DocumentView doc={doc} tone={tone} /> : <pre className="json-doc">{toRelaxedJson(doc)}</pre>}
+      {mode === 'list' ? <DocumentView doc={doc} tone={tone} /> : <JsonView text={toRelaxedJson(doc)} />}
     </div>
   );
 }

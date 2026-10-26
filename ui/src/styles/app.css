@@ -661,6 +661,32 @@ code,
   word-break: break-word;
 }
 
+.json-key {
+  color: var(--key);
+}
+
+.json-ejson,
+.json-null,
+.json-punct {
+  color: var(--text-faint);
+}
+
+.json-string {
+  color: var(--value-string);
+}
+
+.json-number {
+  color: var(--value-number);
+}
+
+.json-boolean {
+  color: var(--value-boolean);
+}
+
+.json-objectid {
+  color: var(--value-objectid);
+}
+
 /* ---------- change view (diff) ---------- */
 .change-view {
   font-family: var(--font-code);
