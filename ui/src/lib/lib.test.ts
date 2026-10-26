@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { bsonTypeOf, displayValue, entriesOf, fromEJSON, valueKey } from './bson';
 import { diffDocuments, diffStats, pairDocuments, type DiffNode } from './diff';
 import { toShell } from './shell';
+import { rowToggle } from './toggle';
 
 const relaxedDoc = {
   _id: { $oid: '6adedc58761ef473c665d0fb' },
@@ -122,5 +123,18 @@ describe('tab title', async () => {
   it('shows the unseen count only when there is one', () => {
     expect(titleFor(0)).toBe('Herdr DB');
     expect(titleFor(3)).toBe('(3) Herdr DB');
+  });
+});
+
+describe('rowToggle', () => {
+  it('toggles on a plain click and ignores a click that ends a text selection', () => {
+    let toggles = 0;
+    let selected = '';
+    const onClick = rowToggle(() => (toggles += 1), () => selected);
+    onClick({} as never);
+    expect(toggles).toBe(1);
+    selected = "ObjectId('6adedc58')";
+    onClick({} as never);
+    expect(toggles).toBe(1);
   });
 });

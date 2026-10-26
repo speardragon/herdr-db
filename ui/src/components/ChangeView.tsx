@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { DiffNode } from '../lib/diff';
 import { BsonValue } from './BsonValue';
 import { CaretIcon } from './icons';
+import { rowToggle } from '../lib/toggle';
 
 function markOf(changeType: DiffNode['changeType']) {
   if (changeType === 'added') return 'mark-added';
@@ -35,8 +36,8 @@ function Branch({ node }: { node: DiffNode }) {
   const label = node.container === 'Array' ? 'Array' : 'Object';
   return (
     <div>
-      <div className="change-row">
-        <button type="button" className="caret" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <div className="change-row is-expandable" onClick={rowToggle(() => setOpen((current) => !current))}>
+        <button type="button" className="caret" aria-expanded={open} aria-label={open ? 'Collapse field items' : 'Expand field items'}>
           <CaretIcon open={open} />
         </button>
         <span className={['change-key', mark].filter(Boolean).join(' ')}>{node.key}:</span>

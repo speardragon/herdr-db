@@ -565,6 +565,11 @@ code,
   background: var(--bg-hover);
 }
 
+.element.is-expandable,
+.change-row.is-expandable {
+  cursor: pointer;
+}
+
 .element.is-removed {
   background: var(--row-removed);
 }
@@ -668,6 +673,10 @@ code,
   display: flex;
   align-items: flex-start;
   margin-top: 1px;
+}
+
+.change-row.is-expandable:hover {
+  background: var(--bg-hover);
 }
 
 .change-row .caret {

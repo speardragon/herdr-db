@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { bsonTypeOf, entriesOf, isContainer } from '../lib/bson';
 import { BsonValue } from './BsonValue';
 import { CaretIcon } from './icons';
+import { rowToggle } from '../lib/toggle';
 
 // Compass shows the first 25 fields and reveals the rest on demand.
 const INITIAL_FIELDS = 25;
@@ -40,11 +41,14 @@ function Element({ name, value, level, tone, isIndex }: { name: string; value: u
 
   return (
     <>
-      <div className={`element${tone ? ` is-${tone}` : ''}`}>
+      <div
+        className={['element', tone && `is-${tone}`, expandable && 'is-expandable'].filter(Boolean).join(' ')}
+        onClick={expandable ? rowToggle(() => setOpen((current) => !current)) : undefined}
+      >
         <div style={{ width: INDENT * level, flex: 'none' }} />
         <div className="element-expand">
           {expandable && (
-            <button type="button" className="caret" aria-expanded={open} aria-label={open ? 'Collapse field items' : 'Expand field items'} onClick={() => setOpen(!open)}>
+            <button type="button" className="caret" aria-expanded={open} aria-label={open ? 'Collapse field items' : 'Expand field items'}>
               <CaretIcon open={open} />
             </button>
           )}
