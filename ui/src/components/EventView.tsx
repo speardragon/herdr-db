@@ -4,6 +4,7 @@ import { Banner } from './Banner';
 import { DocumentList } from './DocumentList';
 import { AdminView, MetaView } from './MetaViews';
 import { AggregateView, CountView, ExportView, FindView } from './ReadViews';
+import { SessionBar } from './SessionBar';
 import { DeleteView, InsertView, UpdateView } from './WriteViews';
 
 export function KindBadge({ kind, status }: { kind: EventKind; status?: 'ok' | 'error' }) {
@@ -19,7 +20,6 @@ function formatTime(ts: string) {
 
 function EventHeader({ event }: { event: CapturedEvent }) {
   const { database, collection } = event.namespace;
-  const herdr = event.context.herdr;
   return (
     <header className="event-header">
       <div className="breadcrumb">
@@ -43,13 +43,8 @@ function EventHeader({ event }: { event: CapturedEvent }) {
         <span className={`agent-chip agent-${event.agent ?? 'claude'}`}>{agentLabel(event.agent)}</span>
         <span>{formatTime(event.ts)}</span>
         {event.durationMs != null && <span>{event.durationMs} ms</span>}
-        {event.context.project && <span title={event.context.cwd}>{event.context.project}</span>}
-        {herdr?.paneId && (
-          <span title={`workspace ${herdr.workspaceId ?? '?'} · tab ${herdr.tabId ?? '?'}`}>
-            herdr {herdr.workspaceLabel ?? herdr.workspaceId} · {herdr.paneId}
-          </span>
-        )}
       </div>
+      <SessionBar event={event} />
     </header>
   );
 }

@@ -48,6 +48,16 @@ export const en = {
     indexes: 'Indexes',
   },
 
+  session: {
+    label: 'Agent session',
+    workspace: 'Workspace',
+    tab: 'Tab',
+    title: 'Title',
+    folder: 'Folder',
+    id: 'Session',
+    copyId: 'Copy session id',
+  },
+
   documents: {
     title: 'Documents',
     range: (range: string, total: string) => `${range} of ${total}`,

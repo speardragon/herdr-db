@@ -47,6 +47,16 @@ export const ko: Messages = {
     indexes: '인덱스',
   },
 
+  session: {
+    label: '에이전트 세션',
+    workspace: '워크스페이스',
+    tab: '탭',
+    title: '제목',
+    folder: '폴더',
+    id: '세션',
+    copyId: '세션 ID 복사',
+  },
+
   documents: {
     title: '문서',
     range: (range, total) => `${total}개 중 ${range}`,

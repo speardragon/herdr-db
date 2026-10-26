@@ -22,10 +22,14 @@ function isAllowedHost(host, port) {
   return [`127.0.0.1:${port}`, `localhost:${port}`].includes(String(host ?? ''));
 }
 
+// Names captured by the hook win; events from before that only carry ids, so look the workspace up now.
+function withWorkspaceLabel(herdr, labels) {
+  if (!herdr?.workspaceId || herdr.workspaceLabel) return herdr;
+  return { ...herdr, workspaceLabel: labels.get(herdr.workspaceId) ?? null };
+}
+
 function withLabels(summary, labels) {
-  const workspaceId = summary.herdr?.workspaceId;
-  if (!workspaceId) return summary;
-  return { ...summary, herdr: { ...summary.herdr, workspaceLabel: labels.get(workspaceId) ?? null } };
+  return summary.herdr ? { ...summary, herdr: withWorkspaceLabel(summary.herdr, labels) } : summary;
 }
 
 export function createViewerServer({
@@ -113,9 +117,8 @@ export function createViewerServer({
       const event = readEvent(paths.events, match[1]);
       if (!event) return sendJson(res, 404, { error: 'not found' });
       const herdr = event.context?.herdr;
-      if (!herdr?.workspaceId) return sendJson(res, 200, event);
-      const workspaceLabel = (await workspaceLabels()).get(herdr.workspaceId) ?? null;
-      return sendJson(res, 200, { ...event, context: { ...event.context, herdr: { ...herdr, workspaceLabel } } });
+      if (!herdr) return sendJson(res, 200, event);
+      return sendJson(res, 200, { ...event, context: { ...event.context, herdr: withWorkspaceLabel(herdr, await workspaceLabels()) } });
     }
     if (url.pathname === '/api/stream') {
       res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-store', connection: 'keep-alive' });

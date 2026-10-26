@@ -1,23 +1,10 @@
-import { execFile } from 'node:child_process';
+import { herdrBin, runHerdr } from '../herdr-cli.mjs';
 
 const CACHE_MS = 15_000;
 
-function runHerdr(bin, args) {
-  return new Promise((resolve) => {
-    execFile(bin, args, { timeout: 2000 }, (error, stdout) => {
-      if (error) return resolve(null);
-      try {
-        resolve(JSON.parse(stdout));
-      } catch {
-        resolve(null);
-      }
-    });
-  });
-}
-
 /** Maps herdr workspace ids to their labels so the viewer can say which agent made a call. */
 export function createHerdrLabels({ env = process.env, run = runHerdr } = {}) {
-  const bin = env.HERDR_BIN_PATH || 'herdr';
+  const bin = herdrBin(env);
   let cache = { at: 0, labels: new Map() };
 
   async function refresh() {

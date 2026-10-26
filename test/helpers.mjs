@@ -30,6 +30,7 @@ export function testContext(paths, overrides = {}) {
         before: async () => ({ documents: [], truncated: false, matched: 0 }),
         after: async () => [],
       },
+      herdrSession: async () => null,
       launch: async (event) => {
         launched.push(event.id);
       },

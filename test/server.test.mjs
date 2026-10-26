@@ -80,6 +80,21 @@ test('serves health, event list with herdr labels, and single events', async (t)
   assert.equal((await request(port, '/api/events/nope-00')).status, 404);
 });
 
+test('keeps the herdr names captured with an event over the current ones', async (t) => {
+  const { port, paths } = await startServer(t);
+  const captured = buildEvent(fixture('find'), { env: { HERDR_WORKSPACE_ID: 'w1', HERDR_TAB_ID: 'w1:t1', HERDR_PANE_ID: 'w1:p1' }, now: Date.now() });
+  const event = { ...captured, context: { ...captured.context, herdr: { ...captured.context.herdr, workspaceLabel: 'old-name', tabLabel: 'billing fix' } } };
+  writeEvent(paths.events, event);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  const list = JSON.parse((await request(port, '/api/events')).body);
+  const summary = list.events.find((item) => item.id === event.id);
+  assert.equal(summary.herdr.workspaceLabel, 'old-name');
+  assert.equal(summary.herdr.tabLabel, 'billing fix');
+  const single = JSON.parse((await request(port, `/api/events/${event.id}`)).body);
+  assert.equal(single.context.herdr.workspaceLabel, 'old-name');
+});
+
 test('rejects foreign Host headers', async (t) => {
   const { port } = await startServer(t);
   assert.equal((await request(port, '/api/events', { host: 'evil.example:80' })).status, 403);

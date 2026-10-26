@@ -47,7 +47,7 @@ function matches(event: EventSummary, filters: SidebarFilters) {
   if (filters.kind === 'write' && !(event.kind === 'write' || event.kind === 'admin')) return false;
   const q = filters.query.trim().toLowerCase();
   if (!q) return true;
-  const haystack = [agentLabel(event.agent), event.server, event.tool, event.namespace.database, event.namespace.collection, event.project, event.herdr?.workspaceLabel]
+  const haystack = [agentLabel(event.agent), event.server, event.tool, event.namespace.database, event.namespace.collection, event.project, event.herdr?.workspaceLabel, event.herdr?.tabLabel, event.herdr?.paneTitle]
     .filter(Boolean)
     .join(' ')
     .toLowerCase();
@@ -66,7 +66,7 @@ function groupByDay(events: EventSummary[], t: Messages) {
 function EventItem({ event, selected, fresh, onSelect }: { event: EventSummary; selected: boolean; fresh: boolean; onSelect: () => void }) {
   const t = useT();
   const { database, collection } = event.namespace;
-  const where = event.herdr?.workspaceLabel ?? event.project;
+  const where = event.herdr?.tabLabel || event.herdr?.workspaceLabel || event.project;
   const meta = [agentShortLabel(event.agent), resultText(event, t), collection ? database : event.server, where].filter(Boolean);
   return (
     <li>

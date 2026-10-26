@@ -1,6 +1,7 @@
 import { appendLog, ensureDirs, loadConfig, pathsFor, resolveHome } from './config.mjs';
 import { agentFromEnv } from './agents.mjs';
 import { resolveConnectionString, resolveServerName } from './connection.mjs';
+import { herdrSessionLabels } from './herdr-session.mjs';
 import { buildEvent } from './normalize.mjs';
 import { captureAfter, captureBefore, prunePending, savePending, takePending } from './snapshot.mjs';
 import { writeEvent } from './store.mjs';
@@ -64,9 +65,13 @@ async function handlePost(payload, parsed, ctx) {
   const agent = agentFromEnv(ctx.env);
   const server = payload.mcp_server?.name ?? resolveServerName(agent, parsed.server, { cwd: payload.cwd, env: ctx.env });
   const draft = buildEvent(payload, { env: ctx.env, now: ctx.now(), agent, server });
-  const snapshot = draft.status === 'ok' ? await completeSnapshot(payload, parsed, ctx, draft.result) : null;
+  const [snapshot, herdrLabels] = await Promise.all([
+    draft.status === 'ok' ? completeSnapshot(payload, parsed, ctx, draft.result) : null,
+    draft.context.herdr ? ctx.herdrSession(draft.context.herdr) : null,
+  ]);
   if (!snapshot && needsSnapshot(parsed.tool)) takePending(ctx.paths.pending, payload.tool_use_id);
-  const event = { ...draft, snapshot };
+  const herdr = draft.context.herdr && { ...draft.context.herdr, ...herdrLabels };
+  const event = { ...draft, snapshot, context: { ...draft.context, herdr } };
   writeEvent(ctx.paths.events, event);
 
   if (!shouldOpen(ctx.config, event.kind)) return event;
@@ -90,6 +95,7 @@ export function defaultContext(env = process.env) {
     config,
     now: () => Date.now(),
     capture: { before: captureBefore, after: captureAfter },
+    herdrSession: (ids) => herdrSessionLabels(ids, { env }),
     launch: () => defaultLaunch(config, paths),
   };
 }

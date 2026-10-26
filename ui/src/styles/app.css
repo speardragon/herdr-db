@@ -374,6 +374,47 @@ code,
   align-items: center;
 }
 
+.session-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 18px;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--text);
+}
+
+.session-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.session-label {
+  color: var(--text-faint);
+  flex: none;
+}
+
+.session-value {
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.session-path {
+  font-family: var(--font-code);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.session-fact .icon-button {
+  width: 20px;
+  height: 20px;
+}
+
 .content {
   padding: 16px 24px 32px;
   display: flex;

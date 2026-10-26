@@ -18,6 +18,9 @@ export interface HerdrContext {
   tabId: string | null;
   paneId: string | null;
   workspaceLabel?: string | null;
+  tabLabel?: string | null;
+  /** The agent's terminal title at the time of the call, e.g. the Claude Code session title. */
+  paneTitle?: string | null;
 }
 
 export interface Namespace {
