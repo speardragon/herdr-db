@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { fromEJSON } from '../lib/bson';
 import { pairDocuments, type DocumentChange } from '../lib/diff';
-import type { CapturedEvent, Snapshot } from '../lib/types';
+import { useT, type Messages } from '../lib/i18n';
+import { agentLabel, type AgentId, type CapturedEvent, type Snapshot } from '../lib/types';
 import { Banner, StatCards } from './Banner';
 import { BsonValue } from './BsonValue';
 import { ChangeView } from './ChangeView';
@@ -11,62 +12,85 @@ import { QueryBar, QueryRow } from './QueryBar';
 
 const num = (value: unknown) => (typeof value === 'number' ? value : '–');
 
-export function SnapshotNotice({ snapshot, server }: { snapshot: Snapshot | null; server: string }) {
+// Where each agent keeps its MCP server definitions.
+const CONFIG_FILES: Record<AgentId, [string, string]> = {
+  claude: ['~/.claude.json', '.mcp.json'],
+  codex: ['~/.codex/config.toml', '.codex/config.toml'],
+};
+
+function ConfigFiles({ agent }: { agent: AgentId }) {
+  const [first, second] = CONFIG_FILES[agent];
+  return (
+    <>
+      <code>{first}</code> / <code>{second}</code>
+    </>
+  );
+}
+
+export function SnapshotNotice({ snapshot, server, agent = 'claude' }: { snapshot: Snapshot | null; server: string; agent?: AgentId }) {
+  const t = useT();
   if (!snapshot) return null;
   const error = snapshot.error;
   if (error === 'connection-string-not-found') {
     const envName = `HERDR_DB_URI_${server.replace(/[^A-Za-z0-9]/g, '_').toUpperCase()}`;
     return (
-      <Banner variant="warn" title="변경 전 문서를 캡처하지 못했습니다">
-        <code>{server}</code> MCP 서버의 연결 문자열을 찾지 못했습니다. <code>~/.claude.json</code> / <code>.mcp.json</code>의{' '}
-        <code>MDB_MCP_CONNECTION_STRING</code>을 확인하거나 <code>{envName}</code> 환경 변수를 지정하세요.
+      <Banner variant="warn" title={t.snapshot.noConnectionTitle}>
+        {t.snapshot.noConnection({
+          server: <code>{server}</code>,
+          files: <ConfigFiles agent={agent} />,
+          key: <code>MDB_MCP_CONNECTION_STRING</code>,
+          env: <code>{envName}</code>,
+        })}
       </Banner>
     );
   }
-  if (error === 'runtime-connection') {
-    return <Banner variant="warn" title="런타임 연결(connect 도구)로 실행된 쓰기라 변경 전 문서를 캡처할 수 없습니다" />;
-  }
+  if (error === 'runtime-connection') return <Banner variant="warn" title={t.snapshot.runtimeConnection} />;
   if (error === 'no-before-snapshot') {
-    return <Banner variant="warn" title="PreToolUse 훅이 실행되지 않아 변경 전 문서가 없습니다">훅 설치 직후라면 Claude Code 세션을 다시 시작하세요.</Banner>;
+    return (
+      <Banner variant="warn" title={t.snapshot.noBeforeTitle}>
+        {t.snapshot.noBefore(agentLabel(agent))}
+      </Banner>
+    );
   }
   if (error) {
     return (
-      <Banner variant="warn" title={snapshot.before ? '변경 후 문서를 다시 읽지 못했습니다' : '스냅샷 캡처 실패'}>
+      <Banner variant="warn" title={snapshot.before ? t.snapshot.afterFailed : t.snapshot.failed}>
         <pre>{error}</pre>
       </Banner>
     );
   }
   if (snapshot.truncated) {
     return (
-      <Banner variant="info" title={`스냅샷은 처음 ${snapshot.before?.length ?? 0}개 문서만 담고 있습니다`}>
-        필터와 일치한 문서는 {snapshot.matched ?? '?'}개입니다.
+      <Banner variant="info" title={t.snapshot.truncated(snapshot.before?.length ?? 0)}>
+        {t.snapshot.matched(snapshot.matched?.toLocaleString() ?? '?')}
       </Banner>
     );
   }
   return null;
 }
 
-function changeBadge(change: DocumentChange) {
+function changeBadge(change: DocumentChange, t: Messages) {
   switch (change.kind) {
     case 'modified':
       return (
         <>
-          <span className="badge badge-write">modified</span>
+          <span className="badge badge-write">{t.write.badgeModified}</span>
           {change.stats.changed > 0 && <span className="stat stat-changed">~{change.stats.changed}</span>}
           {change.stats.added > 0 && <span className="stat stat-added">+{change.stats.added}</span>}
           {change.stats.removed > 0 && <span className="stat stat-removed">−{change.stats.removed}</span>}
         </>
       );
     case 'unchanged':
-      return <span className="badge badge-meta">no change</span>;
+      return <span className="badge badge-meta">{t.write.badgeUnchanged}</span>;
     case 'inserted':
-      return <span className="badge badge-ok">upserted</span>;
+      return <span className="badge badge-ok">{t.write.badgeUpserted}</span>;
     case 'deleted':
-      return <span className="badge badge-admin">no longer exists</span>;
+      return <span className="badge badge-admin">{t.write.badgeGone}</span>;
   }
 }
 
 function ChangeCard({ change }: { change: DocumentChange }) {
+  const t = useT();
   const doc = 'document' in change ? change.document : null;
   return (
     <div className={`document-card${change.kind === 'inserted' ? ' is-added' : change.kind === 'deleted' ? ' is-removed' : ''}`}>
@@ -77,7 +101,7 @@ function ChangeCard({ change }: { change: DocumentChange }) {
       )}
       <div className="card-tag mono">
         <span className="element-key">_id:</span> <BsonValue value={change.id} />
-        {changeBadge(change)}
+        {changeBadge(change, t)}
       </div>
       {change.kind === 'modified' || change.kind === 'unchanged' ? (
         <ChangeView diff={change.diff} />
@@ -89,6 +113,7 @@ function ChangeCard({ change }: { change: DocumentChange }) {
 }
 
 export function UpdateView({ event }: { event: CapturedEvent }) {
+  const t = useT();
   const [showUnchanged, setShowUnchanged] = useState(false);
   const result = event.result ?? {};
   const snapshot = event.snapshot;
@@ -103,24 +128,24 @@ export function UpdateView({ event }: { event: CapturedEvent }) {
     <>
       <StatCards
         items={[
-          { label: 'Matched', value: num(result.matchedCount) },
-          { label: 'Modified', value: num(result.modifiedCount) },
-          { label: 'Upserted', value: num(result.upsertedCount) },
+          { label: t.write.matched, value: num(result.matchedCount) },
+          { label: t.write.modified, value: num(result.modifiedCount) },
+          { label: t.write.upserted, value: num(result.upsertedCount) },
         ]}
       />
       <QueryBar input={event.input}>
         <QueryRow label="Update" value={event.input.update} />
       </QueryBar>
-      <SnapshotNotice snapshot={snapshot} server={event.server} />
+      <SnapshotNotice snapshot={snapshot} server={event.server} agent={event.agent} />
       {changes && (
-        <section className="document-list" aria-label="Changes">
+        <section className="document-list" aria-label={t.write.changes}>
           <div className="toolbar">
-            <strong>Changes</strong>
-            <span>{changes.length - unchanged} of {changes.length} captured documents changed</span>
+            <strong>{t.write.changes}</strong>
+            <span>{t.write.changedOf(changes.length - unchanged, changes.length)}</span>
             <span className="spacer" />
             {unchanged > 0 && (
               <button type="button" className="text-button" aria-pressed={showUnchanged} onClick={() => setShowUnchanged(!showUnchanged)}>
-                Show {unchanged} unchanged
+                {t.write.showUnchanged(unchanged)}
               </button>
             )}
           </div>
@@ -134,13 +159,14 @@ export function UpdateView({ event }: { event: CapturedEvent }) {
 }
 
 export function DeleteView({ event }: { event: CapturedEvent }) {
+  const t = useT();
   const snapshot = event.snapshot;
   return (
     <>
-      <StatCards items={[{ label: 'Deleted', value: num(event.result?.deletedCount) }]} />
+      <StatCards items={[{ label: t.write.deleted, value: num(event.result?.deletedCount) }]} />
       <QueryBar input={event.input} />
-      <SnapshotNotice snapshot={snapshot} server={event.server} />
-      {snapshot?.before && <DocumentList title="Deleted documents" documents={snapshot.before} total={snapshot.matched} tone="removed" />}
+      <SnapshotNotice snapshot={snapshot} server={event.server} agent={event.agent} />
+      {snapshot?.before && <DocumentList title={t.write.deletedDocuments} documents={snapshot.before} total={snapshot.matched} tone="removed" />}
     </>
   );
 }
@@ -156,12 +182,13 @@ function withInsertedIds(documents: unknown[], insertedIds: unknown): unknown[] 
 }
 
 export function InsertView({ event }: { event: CapturedEvent }) {
+  const t = useT();
   const documents = Array.isArray(event.input.documents) ? event.input.documents : [];
   const inserted = withInsertedIds(documents, event.result?.insertedIds);
   return (
     <>
-      <StatCards items={[{ label: 'Inserted', value: num(event.result?.insertedCount) }]} />
-      <DocumentList title="Inserted documents" documents={inserted} tone="added" />
+      <StatCards items={[{ label: t.write.inserted, value: num(event.result?.insertedCount) }]} />
+      <DocumentList title={t.write.insertedDocuments} documents={inserted} tone="added" />
     </>
   );
 }

@@ -15,7 +15,7 @@ MongoDB Compass처럼 보여주는 [herdr](https://herdr.dev) 플러그인입니
 
 [English](README.md) · [한국어](README.ko.md)
 
-<img src="docs/screenshots/update.png" alt="update-many 호출을 문서별 before/after diff로 보여주는 화면" width="900">
+<img src="docs/screenshots/ko/update.png" alt="update-many 호출을 문서별 before/after diff로 보여주는 화면" width="900">
 
 </div>
 
@@ -43,16 +43,17 @@ Herdr DB는 에이전트를 느리게 만들지 않고 이 질문에 답합니�
   늦추거나, 바꾸지 않습니다. 창은 키보드 포커스를 빼앗지 않고 앞으로만 나옵니다.
 - **네이티브 창 또는 브라우저** — Dock 아이콘 없는 작은 메뉴바 앱이나 로컬 포트의 브라우저 탭 중에서
   고를 수 있고, 설정 화면에서 언제든 바꿀 수 있습니다.
+- **한국어·영어** — 시스템 언어를 따르거나 설정에서 고를 수 있습니다.
 - **라이트·다크 모드** — 시스템 설정을 따릅니다.
 
 <table>
   <tr>
-    <td><img src="docs/screenshots/find.png" alt="filter, projection, sort, limit이 있는 find"></td>
-    <td><img src="docs/screenshots/aggregate.png" alt="스테이지별로 보이는 aggregate 파이프라인"></td>
+    <td><img src="docs/screenshots/ko/find.png" alt="filter, projection, sort, limit이 있는 find"></td>
+    <td><img src="docs/screenshots/ko/aggregate.png" alt="스테이지별로 보이는 aggregate 파이프라인"></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/delete.png" alt="삭제된 문서를 보여주는 delete-many"></td>
-    <td><img src="docs/screenshots/update-dark.png" alt="다크 모드의 update-many diff"></td>
+    <td><img src="docs/screenshots/ko/delete.png" alt="삭제된 문서를 보여주는 delete-many"></td>
+    <td><img src="docs/screenshots/ko/update-dark.png" alt="다크 모드의 update-many diff"></td>
   </tr>
 </table>
 
@@ -175,6 +176,7 @@ Codex는 도구 이름의 `-`를 `_`로 바꿔 보내지만(`update_many`) 똑�
 | --- | --- | --- |
 | `viewer` | `app` | `app`(네이티브 창) 또는 `browser`(로컬 포트의 브라우저 탭) |
 | `autoOpen` | `always` | `always`, `writes`(쓰기 호출일 때만 띄움), `never`(띄우지 않고 기록만) |
+| `locale` | `auto` | `auto`(시스템 언어), `en`, `ko`. 메뉴바 메뉴도 따라갑니다 |
 | `snapshotLimit` | `50` | `update-many` / `delete-many` 직전에 읽어 두는 문서 수 |
 | `maxEvents` | `500` | 이 개수를 넘으면 오래된 호출부터 지움 |
 | `maxAgeDays` | `14` | 이 일수가 지나면 지움 |

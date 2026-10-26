@@ -1,3 +1,4 @@
+import type { LocalePreference } from './i18n';
 import type { AgentId } from './types';
 
 export type ViewerMode = 'app' | 'browser';
@@ -6,6 +7,7 @@ export type AutoOpen = 'always' | 'writes' | 'never';
 export interface Settings {
   viewer: ViewerMode;
   autoOpen: AutoOpen;
+  locale: LocalePreference;
   snapshotLimit: number;
   maxEvents: number;
   maxAgeDays: number;

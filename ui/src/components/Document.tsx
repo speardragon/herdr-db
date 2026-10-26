@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { bsonTypeOf, entriesOf, isContainer } from '../lib/bson';
+import { useT } from '../lib/i18n';
 import { BsonValue } from './BsonValue';
 import { CaretIcon } from './icons';
 import { rowToggle } from '../lib/toggle';
@@ -11,11 +12,12 @@ const INDENT = 16;
 type Tone = 'added' | 'removed' | undefined;
 
 function ShowMore({ hidden, level, onShow }: { hidden: number; level: number; onShow: () => void }) {
+  const t = useT();
   if (hidden <= 0) return null;
   return (
     <div style={{ paddingLeft: 4 + INDENT * (level + 1) }}>
       <button type="button" className="show-more" onClick={onShow}>
-        Show {hidden} more {hidden === 1 ? 'field' : 'fields'}
+        {t.documents.showMoreFields(hidden)}
       </button>
     </div>
   );
@@ -38,6 +40,7 @@ function Element({ name, value, level, tone, isIndex }: { name: string; value: u
   const type = bsonTypeOf(value);
   const expandable = isContainer(type) && entriesOf(value).length > 0;
   const [open, setOpen] = useState(false);
+  const t = useT();
 
   return (
     <>
@@ -48,7 +51,7 @@ function Element({ name, value, level, tone, isIndex }: { name: string; value: u
         <div style={{ width: INDENT * level, flex: 'none' }} />
         <div className="element-expand">
           {expandable && (
-            <button type="button" className="caret" aria-expanded={open} aria-label={open ? 'Collapse field items' : 'Expand field items'}>
+            <button type="button" className="caret" aria-expanded={open} aria-label={open ? t.documents.collapse : t.documents.expand}>
               <CaretIcon open={open} />
             </button>
           )}

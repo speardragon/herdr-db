@@ -1,0 +1,157 @@
+import type { ReactNode } from 'react';
+
+// MongoDB / Compass terms (Filter, Project, Sort, Limit, Update, kind badges) stay in English in every locale.
+export const en = {
+  dateLocale: 'en-US',
+
+  empty: {
+    waiting: 'Waiting for MongoDB MCP calls',
+    connecting: 'Connecting to the server…',
+    body: 'When Claude Code or Codex calls a MongoDB MCP tool (find, aggregate, update-many …), the documents it read, the query results and a diff of every write show up here, Compass-style.',
+  },
+  confirmClear: 'Delete every captured call?',
+
+  sidebar: {
+    live: 'Connected',
+    offline: 'Disconnected',
+    settings: 'Settings',
+    clear: 'Clear history',
+    search: 'Filter by collection, server, project, agent…',
+    kind: 'Kind',
+    all: 'All',
+    reads: 'Reads',
+    writes: 'Writes',
+    follow: 'Jump to new calls automatically',
+    today: 'Today',
+    yesterday: 'Yesterday',
+  },
+  summary: {
+    failed: 'failed',
+    count: (n: string) => `count ${n}`,
+    docs: (n: string) => `${n} docs`,
+    results: (n: string) => `${n} results`,
+    modified: (n: string) => `${n} modified`,
+    deleted: (n: string) => `${n} deleted`,
+    inserted: (n: string) => `${n} inserted`,
+  },
+
+  event: {
+    failed: 'Tool call failed',
+    input: 'Input',
+    result: 'Result',
+    results: 'Results',
+    emptyResult: 'The result is empty',
+    exportBody: 'The results were exported as an MCP resource.',
+    cappedBy: (limits: string) => `capped by ${limits}`,
+    databases: 'Databases',
+    collections: 'Collections',
+    indexes: 'Indexes',
+  },
+
+  documents: {
+    title: 'Documents',
+    range: (range: string, total: string) => `${range} of ${total}`,
+    returned: ' (returned to the agent)',
+    copy: 'Copy document',
+    copyAll: 'Copy all documents',
+    view: 'View',
+    list: 'List',
+    showMore: (n: number) => `Show ${n} more documents`,
+    showMoreFields: (n: number) => `Show ${n} more ${n === 1 ? 'field' : 'fields'}`,
+    expand: 'Expand field items',
+    collapse: 'Collapse field items',
+  },
+
+  query: {
+    allDocuments: '{} (all documents)',
+    pipeline: 'Pipeline',
+    stages: (n: number) => `${n} ${n === 1 ? 'stage' : 'stages'}`,
+    stage: (n: number) => `Stage ${n}`,
+    writes: 'writes',
+  },
+
+  write: {
+    matched: 'Matched',
+    modified: 'Modified',
+    upserted: 'Upserted',
+    deleted: 'Deleted',
+    inserted: 'Inserted',
+    count: 'Count',
+    changes: 'Changes',
+    changedOf: (changed: number, total: number) => `${changed} of ${total} captured documents changed`,
+    showUnchanged: (n: number) => `Show ${n} unchanged`,
+    deletedDocuments: 'Deleted documents',
+    insertedDocuments: 'Inserted documents',
+    badgeModified: 'modified',
+    badgeUnchanged: 'no change',
+    badgeUpserted: 'upserted',
+    badgeGone: 'no longer exists',
+  },
+
+  snapshot: {
+    noConnectionTitle: "Couldn't capture the documents before the write",
+    noConnection: ({ server, files, key, env }: Record<'server' | 'files' | 'key' | 'env', ReactNode>) => (
+      <>
+        Couldn't find the connection string for the {server} MCP server. Check {key} in {files}, or set the {env} environment variable.
+      </>
+    ),
+    runtimeConnection: "This write ran on a connection opened with the connect tool, so the documents before it can't be captured",
+    noBeforeTitle: "No documents from before the write: the PreToolUse hook didn't run",
+    noBefore: (agent: string) => `If you just installed the hooks, restart the ${agent} session.`,
+    afterFailed: "Couldn't re-read the documents after the write",
+    failed: 'Snapshot failed',
+    truncated: (n: number) => `The snapshot only holds the first ${n} documents`,
+    matched: (n: string) => `${n} documents matched the filter.`,
+  },
+
+  settings: {
+    title: 'Settings',
+    saving: 'Saving…',
+    saved: 'Saved',
+    close: 'Close',
+    saveFailed: "Couldn't save the settings",
+    nodeMissingTitle: 'The node binary the hooks point to no longer exists',
+    nodeMissing: 'Run node bin/install-hooks.mjs again.',
+    language: 'Language',
+    languageHelp: 'The menu-bar menu follows this too.',
+    system: 'System',
+    viewer: 'Open in',
+    viewerHelp: 'Switching opens the viewer the new way right away, and the native window closes itself.',
+    appTitle: 'Native window',
+    appBody: 'Comes forward on every call without taking keyboard focus from your terminal. Lives in the menu bar, not the Dock.',
+    appMissing: 'The app is not built. Run npm run build:mac to enable it.',
+    browserTitle: 'Browser (local port)',
+    browserBody: "Opens in a tab of your default browser. An open tab can't be brought forward, so new calls show up as a count in the tab title.",
+    autoOpen: 'Bring up the viewer',
+    autoOpenHelp: 'Whether the viewer comes forward when a MongoDB MCP call arrives. Calls are always recorded.',
+    always: 'Every call',
+    writes: 'Writes only',
+    never: 'Never',
+    snapshot: 'Write snapshots',
+    snapshotHelp: 'Documents read just before update-many / delete-many. The diff is built from these.',
+    snapshotSuffix: 'documents',
+    retention: 'Retention',
+    retentionHelp: 'Captured documents contain real data. Older calls are deleted once either limit is reached.',
+    maxEventsSuffix: 'calls',
+    maxAgeSuffix: 'days',
+    status: 'Status',
+    statusHelp: 'Codex runs the hooks only after you trust them once in /hooks, and asks again whenever the hook command changes.',
+    hooks: (agent: string) => `${agent} hooks`,
+    notInstalled: 'Not installed — node bin/install-hooks.mjs',
+    notFound: 'Not found on this Mac',
+    server: 'Server',
+    viewers: 'Connected viewers',
+    viewersValue: (app: number, browser: number) => `${app} window · ${browser} browser ${browser === 1 ? 'tab' : 'tabs'}`,
+    stored: 'Stored calls',
+    storedValue: (n: number, home: string) => `${n} · ${home}`,
+  },
+
+  menu: {
+    open: 'Open Herdr DB',
+    settings: 'Settings…',
+    browser: 'Open in Browser',
+    quit: 'Quit Herdr DB',
+  },
+};
+
+export type Messages = typeof en;

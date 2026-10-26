@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { DiffNode } from '../lib/diff';
 import { BsonValue } from './BsonValue';
 import { CaretIcon } from './icons';
+import { useT } from '../lib/i18n';
 import { rowToggle } from '../lib/toggle';
 
 function markOf(changeType: DiffNode['changeType']) {
@@ -32,12 +33,13 @@ function Leaf({ node }: { node: DiffNode }) {
 function Branch({ node }: { node: DiffNode }) {
   // Changed branches start open, like Compass's bulk-update preview.
   const [open, setOpen] = useState(node.changeType !== 'unchanged');
+  const t = useT();
   const mark = markOf(node.changeType);
   const label = node.container === 'Array' ? 'Array' : 'Object';
   return (
     <div>
       <div className="change-row is-expandable" onClick={rowToggle(() => setOpen((current) => !current))}>
-        <button type="button" className="caret" aria-expanded={open} aria-label={open ? 'Collapse field items' : 'Expand field items'}>
+        <button type="button" className="caret" aria-expanded={open} aria-label={open ? t.documents.collapse : t.documents.expand}>
           <CaretIcon open={open} />
         </button>
         <span className={['change-key', mark].filter(Boolean).join(' ')}>{node.key}:</span>

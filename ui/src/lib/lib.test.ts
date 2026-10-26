@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { bsonTypeOf, displayValue, entriesOf, fromEJSON, valueKey } from './bson';
 import { diffDocuments, diffStats, pairDocuments, type DiffNode } from './diff';
 import { toShell } from './shell';
+import { MESSAGES, resolveLocale } from './i18n';
 import { rowToggle } from './toggle';
 
 const relaxedDoc = {
@@ -136,5 +137,29 @@ describe('rowToggle', () => {
     selected = "ObjectId('6adedc58')";
     onClick({} as never);
     expect(toggles).toBe(1);
+  });
+});
+
+describe('i18n', () => {
+  it('resolves auto from the system languages and falls back to English', () => {
+    expect(resolveLocale('auto', ['ko-KR', 'en-US'])).toBe('ko');
+    expect(resolveLocale('auto', ['fr-FR', 'ko'])).toBe('ko');
+    expect(resolveLocale('auto', ['fr-FR'])).toBe('en');
+    expect(resolveLocale('auto', [])).toBe('en');
+    expect(resolveLocale('en', ['ko-KR'])).toBe('en');
+    expect(resolveLocale('ko', ['en-US'])).toBe('ko');
+  });
+
+  it('has the same keys and value kinds in every locale', () => {
+    const shape = (value: unknown): unknown =>
+      value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, child]) => [key, shape(child)])) : typeof value;
+    expect(shape(MESSAGES.ko)).toEqual(shape(MESSAGES.en));
+  });
+
+  it('formats counts in both languages', () => {
+    expect(MESSAGES.en.summary.modified('3')).toBe('3 modified');
+    expect(MESSAGES.ko.summary.modified('3')).toBe('3개 수정');
+    expect(MESSAGES.en.documents.showMoreFields(1)).toBe('Show 1 more field');
+    expect(MESSAGES.ko.write.changedOf(2, 3)).toBe('캡처한 문서 3개 중 2개 변경');
   });
 });

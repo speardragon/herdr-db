@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useT } from '../lib/i18n';
 import { toShell } from '../lib/shell';
 
 function isEmpty(value: unknown) {
@@ -31,11 +32,12 @@ function Option({ label, value }: { label: string; value: unknown }) {
 
 /** Read-only version of Compass's query bar, filled with what the agent asked for. */
 export function QueryBar({ input, children }: { input: Record<string, unknown>; children?: ReactNode }) {
+  const t = useT();
   const filter = input.filter ?? input.query;
   const options = (['projection', 'sort', 'limit', 'skip', 'upsert'] as const).filter((key) => input[key] !== undefined);
   return (
     <div className="query-bar">
-      <QueryRow label="Filter" value={filter} placeholder="{} (all documents)" />
+      <QueryRow label="Filter" value={filter} placeholder={t.query.allDocuments} />
       {children}
       {options.length > 0 && (
         <div className="query-options">
@@ -52,14 +54,13 @@ export function QueryBar({ input, children }: { input: Record<string, unknown>; 
 
 /** Aggregation pipeline as Compass-like stage cards. */
 export function PipelineView({ pipeline }: { pipeline: unknown }) {
+  const t = useT();
   const stages = Array.isArray(pipeline) ? pipeline : [];
   return (
-    <section className="pipeline" aria-label="Pipeline">
+    <section className="pipeline" aria-label={t.query.pipeline}>
       <div className="toolbar">
-        <strong>Pipeline</strong>
-        <span>
-          {stages.length} {stages.length === 1 ? 'stage' : 'stages'}
-        </span>
+        <strong>{t.query.pipeline}</strong>
+        <span>{t.query.stages(stages.length)}</span>
       </div>
       {stages.map((stage, index) => {
         const [operator = '?', body] = Object.entries((stage ?? {}) as Record<string, unknown>)[0] ?? [];
@@ -67,9 +68,9 @@ export function PipelineView({ pipeline }: { pipeline: unknown }) {
         return (
           <div className="stage" key={index}>
             <div className="stage-header">
-              <span className="event-time">Stage {index + 1}</span>
+              <span className="event-time">{t.query.stage(index + 1)}</span>
               <span className="stage-operator">{operator}</span>
-              {writes && <span className="badge badge-write">writes</span>}
+              {writes && <span className="badge badge-write">{t.query.writes}</span>}
             </div>
             <pre className="stage-body">{toShell(body)}</pre>
           </div>

@@ -69,6 +69,8 @@ test('updateConfig validates and persists only editable keys', (t) => {
   assert.throws(() => updateConfig(paths, { viewer: 'tui' }), /invalid value for: viewer/);
   assert.throws(() => updateConfig(paths, { maxEvents: -3 }), /invalid value for: maxEvents/);
   assert.throws(() => updateConfig(paths, []), /must be an object/);
+  assert.equal(updateConfig(paths, { locale: 'ko' }).locale, 'ko');
+  assert.throws(() => updateConfig(paths, { locale: 'fr' }), /invalid value for: locale/);
   assert.equal(loadConfig(paths).viewer, 'browser', 'rejected updates leave the file alone');
 });
 
@@ -77,6 +79,7 @@ test('GET /api/settings reports settings and status', async (t) => {
   const { status, body } = await call(port, '/api/settings');
   assert.equal(status, 200);
   assert.equal(body.settings.viewer, 'app');
+  assert.equal(body.settings.locale, 'auto', 'follows the system language by default');
   assert.equal(body.status.appBuilt, false);
   assert.equal(body.status.effectiveViewer, 'browser', 'falls back when the app is not built');
   assert.deepEqual(body.status.viewers, { app: 0, browser: 0 });

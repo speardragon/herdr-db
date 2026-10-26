@@ -7,9 +7,10 @@ export const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.u
 
 const AUTO_OPEN_MODES = new Set(['always', 'writes', 'never']);
 const VIEWER_MODES = new Set(['app', 'browser']);
+const LOCALES = new Set(['auto', 'en', 'ko']);
 
 // Fields the viewer's settings screen may change. The port is fixed while the server runs.
-export const EDITABLE_KEYS = Object.freeze(['viewer', 'autoOpen', 'snapshotLimit', 'maxEvents', 'maxAgeDays']);
+export const EDITABLE_KEYS = Object.freeze(['viewer', 'autoOpen', 'locale', 'snapshotLimit', 'maxEvents', 'maxAgeDays']);
 
 export const DEFAULT_CONFIG = Object.freeze({
   port: 47917,
@@ -17,6 +18,8 @@ export const DEFAULT_CONFIG = Object.freeze({
   viewer: 'app',
   // When the viewer window pops up: on every captured call, only on writes, or never.
   autoOpen: 'always',
+  // UI language: follow the system, or force English / Korean.
+  locale: 'auto',
   // Max documents captured before an update-many / delete-many runs.
   snapshotLimit: 50,
   snapshotTimeoutMs: 4000,
@@ -57,6 +60,7 @@ export function validateConfig(raw) {
     port: pickPositiveInt(input.port, DEFAULT_CONFIG.port),
     viewer: VIEWER_MODES.has(input.viewer) ? input.viewer : DEFAULT_CONFIG.viewer,
     autoOpen: AUTO_OPEN_MODES.has(input.autoOpen) ? input.autoOpen : DEFAULT_CONFIG.autoOpen,
+    locale: LOCALES.has(input.locale) ? input.locale : DEFAULT_CONFIG.locale,
     snapshotLimit: pickPositiveInt(input.snapshotLimit, DEFAULT_CONFIG.snapshotLimit),
     snapshotTimeoutMs: pickPositiveInt(input.snapshotTimeoutMs, DEFAULT_CONFIG.snapshotTimeoutMs),
     maxEvents: pickPositiveInt(input.maxEvents, DEFAULT_CONFIG.maxEvents),

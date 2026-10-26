@@ -41,6 +41,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     private var window: NSWindow!
     private var webView: ViewerWebView!
     private var statusItem: NSStatusItem!
+    // Keyed by the page's menu-title keys so the page can relabel them when its language changes.
+    private var menuItems: [String: NSMenuItem] = [:]
     private var retryTimer: Timer?
     private let baseURL: URL
 
@@ -103,18 +105,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             image?.isTemplate = true
             button.image = image
         }
+        // Until the page loads and sends its own titles, follow the system language.
+        let korean = Locale.preferredLanguages.first?.hasPrefix("ko") ?? false
         let menu = NSMenu()
-        menu.addItem(item("Herdr DB 열기", #selector(showWindow)))
-        menu.addItem(item("설정…", #selector(showSettings), key: ","))
-        menu.addItem(item("브라우저에서 열기", #selector(openInBrowser)))
+        menu.addItem(item("open", korean ? "Herdr DB 열기" : "Open Herdr DB", #selector(showWindow)))
+        menu.addItem(item("settings", korean ? "설정…" : "Settings…", #selector(showSettings), key: ","))
+        menu.addItem(item("browser", korean ? "브라우저에서 열기" : "Open in Browser", #selector(openInBrowser)))
         menu.addItem(.separator())
-        menu.addItem(item("Herdr DB 종료", #selector(quit), key: "q"))
+        menu.addItem(item("quit", korean ? "Herdr DB 종료" : "Quit Herdr DB", #selector(quit), key: "q"))
         statusItem.menu = menu
     }
 
-    private func item(_ title: String, _ action: Selector, key: String = "") -> NSMenuItem {
+    private func applyMenuTitles(_ titles: [String: Any]) {
+        for (key, value) in titles {
+            if let title = value as? String, !title.isEmpty { menuItems[key]?.title = title }
+        }
+    }
+
+    private func item(_ id: String, _ title: String, _ action: Selector, key: String = "") -> NSMenuItem {
         let menuItem = NSMenuItem(title: title, action: action, keyEquivalent: key)
         menuItem.target = self
+        menuItems[id] = menuItem
         return menuItem
     }
 
@@ -159,6 +170,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             showWindow()
         case "quit":
             NSApp.terminate(nil)
+        case "menu":
+            if let titles = body["titles"] as? [String: Any] { applyMenuTitles(titles) }
         default:
             break
         }

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useT, type Messages } from '../lib/i18n';
 import { agentLabel, agentShortLabel, type EventSummary } from '../lib/types';
 import { KindBadge } from './EventView';
 import { GearIcon, LeafIcon, TrashIcon } from './icons';
@@ -10,7 +11,7 @@ export interface SidebarFilters {
   query: string;
 }
 
-const RESULT_WORD: Record<string, string> = {
+const RESULT_WORD: Record<string, keyof Messages['summary']> = {
   find: 'docs',
   aggregate: 'results',
   'aggregate-db': 'results',
@@ -23,22 +24,22 @@ export function formatClock(ts: string) {
   return new Date(ts).toLocaleTimeString('en-GB', { hour12: false });
 }
 
-function resultText(event: EventSummary) {
-  if (event.status === 'error') return 'failed';
-  if (event.tool === 'count' && event.count != null) return `count ${event.count.toLocaleString()}`;
+function resultText(event: EventSummary, t: Messages) {
+  if (event.status === 'error') return t.summary.failed;
+  if (event.tool === 'count' && event.count != null) return t.summary.count(event.count.toLocaleString());
   const word = RESULT_WORD[event.tool];
-  if (!word || event.count == null) return null;
+  if (!word || word === 'failed' || event.count == null) return null;
   const total = event.total != null && event.total > event.count ? ` / ${event.total.toLocaleString()}` : '';
-  return `${event.count.toLocaleString()}${total} ${word}`;
+  return t.summary[word](`${event.count.toLocaleString()}${total}`);
 }
 
-function dayLabel(ts: string) {
+function dayLabel(ts: string, t: Messages) {
   const date = new Date(ts);
   const today = new Date();
   const yesterday = new Date(today.getTime() - 86_400_000);
-  if (date.toDateString() === today.toDateString()) return 'Today';
-  if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
-  return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+  if (date.toDateString() === today.toDateString()) return t.sidebar.today;
+  if (date.toDateString() === yesterday.toDateString()) return t.sidebar.yesterday;
+  return date.toLocaleDateString(t.dateLocale, { month: 'long', day: 'numeric', weekday: 'short' });
 }
 
 function matches(event: EventSummary, filters: SidebarFilters) {
@@ -53,9 +54,9 @@ function matches(event: EventSummary, filters: SidebarFilters) {
   return haystack.includes(q);
 }
 
-function groupByDay(events: EventSummary[]) {
+function groupByDay(events: EventSummary[], t: Messages) {
   return events.reduce<Array<{ label: string; items: EventSummary[] }>>((groups, event) => {
-    const label = dayLabel(event.ts);
+    const label = dayLabel(event.ts, t);
     const last = groups.at(-1);
     if (last && last.label === label) return [...groups.slice(0, -1), { label, items: [...last.items, event] }];
     return [...groups, { label, items: [event] }];
@@ -63,9 +64,10 @@ function groupByDay(events: EventSummary[]) {
 }
 
 function EventItem({ event, selected, fresh, onSelect }: { event: EventSummary; selected: boolean; fresh: boolean; onSelect: () => void }) {
+  const t = useT();
   const { database, collection } = event.namespace;
   const where = event.herdr?.workspaceLabel ?? event.project;
-  const meta = [agentShortLabel(event.agent), resultText(event), collection ? database : event.server, where].filter(Boolean);
+  const meta = [agentShortLabel(event.agent), resultText(event, t), collection ? database : event.server, where].filter(Boolean);
   return (
     <li>
       <button type="button" className={`event-item${fresh ? ' fresh' : ''}`} aria-current={selected} onClick={onSelect}>
@@ -102,11 +104,12 @@ interface Props {
 }
 
 export function Sidebar({ events, selectedId, freshId, filters, follow, connected, onSelect, onFilters, onFollow, onClear, onSettings }: Props) {
-  const groups = useMemo(() => groupByDay(events.filter((event) => matches(event, filters))), [events, filters]);
+  const t = useT();
+  const groups = useMemo(() => groupByDay(events.filter((event) => matches(event, filters)), t), [events, filters, t]);
   const kinds: Array<[KindFilter, string]> = [
-    ['all', 'All'],
-    ['read', 'Reads'],
-    ['write', 'Writes'],
+    ['all', t.sidebar.all],
+    ['read', t.sidebar.reads],
+    ['write', t.sidebar.writes],
   ];
 
   return (
@@ -117,14 +120,14 @@ export function Sidebar({ events, selectedId, freshId, filters, follow, connecte
             <LeafIcon size={14} />
           </span>
           Herdr DB
-          <span className={`badge ${connected ? 'badge-ok' : 'badge-admin'}`} title={connected ? 'Live' : 'Disconnected'}>
+          <span className={`badge ${connected ? 'badge-ok' : 'badge-admin'}`} title={connected ? t.sidebar.live : t.sidebar.offline}>
             {connected ? 'live' : 'offline'}
           </span>
           <div className="brand-actions">
-            <button type="button" className="icon-button" title="설정" aria-label="설정" onClick={onSettings}>
+            <button type="button" className="icon-button" title={t.sidebar.settings} aria-label={t.sidebar.settings} onClick={onSettings}>
               <GearIcon />
             </button>
-            <button type="button" className="icon-button" title="Clear history" aria-label="Clear history" onClick={onClear}>
+            <button type="button" className="icon-button" title={t.sidebar.clear} aria-label={t.sidebar.clear} onClick={onClear}>
               <TrashIcon />
             </button>
           </div>
@@ -132,11 +135,11 @@ export function Sidebar({ events, selectedId, freshId, filters, follow, connecte
         <input
           className="search"
           type="search"
-          placeholder="Filter by collection, server, project, agent…"
+          placeholder={t.sidebar.search}
           value={filters.query}
           onChange={(e) => onFilters({ ...filters, query: e.target.value })}
         />
-        <div className="segmented" role="group" aria-label="Kind">
+        <div className="segmented" role="group" aria-label={t.sidebar.kind}>
           {kinds.map(([kind, label]) => (
             <button key={kind} type="button" aria-pressed={filters.kind === kind} onClick={() => onFilters({ ...filters, kind })}>
               {label}
@@ -145,7 +148,7 @@ export function Sidebar({ events, selectedId, freshId, filters, follow, connecte
         </div>
         <label className="follow">
           <input type="checkbox" checked={follow} onChange={(e) => onFollow(e.target.checked)} />
-          새 호출이 오면 자동으로 보기
+          {t.sidebar.follow}
         </label>
       </div>
       <ul className="event-list">

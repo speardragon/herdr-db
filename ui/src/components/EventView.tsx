@@ -1,3 +1,4 @@
+import { useT } from '../lib/i18n';
 import { agentLabel, type CapturedEvent, type EventKind } from '../lib/types';
 import { Banner } from './Banner';
 import { DocumentList } from './DocumentList';
@@ -54,13 +55,14 @@ function EventHeader({ event }: { event: CapturedEvent }) {
 }
 
 function Body({ event }: { event: CapturedEvent }) {
+  const t = useT();
   if (event.status === 'error') {
     return (
       <>
-        <Banner variant="danger" title="Tool call failed">
+        <Banner variant="danger" title={t.event.failed}>
           <pre>{event.resultText}</pre>
         </Banner>
-        <DocumentList title="Input" documents={[event.input]} />
+        <DocumentList title={t.event.input} documents={[event.input]} />
       </>
     );
   }

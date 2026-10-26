@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { clearEvents, useCapturedEvent, useEventFeed, type AddedMessage, type ConfigMessage } from './lib/api';
-import { activateWindow, isNativeApp, quitNativeApp, revealWindow } from './lib/native';
+import { I18nContext, MESSAGES, resolveLocale, useT, type LocalePreference, type Messages } from './lib/i18n';
+import { activateWindow, isNativeApp, quitNativeApp, revealWindow, setNativeMenu } from './lib/native';
+import { getSettings } from './lib/settings';
 import { useUnseenTitle } from './lib/title';
 import { EventView } from './components/EventView';
 import { LeafIcon } from './components/icons';
@@ -22,13 +24,31 @@ function readFollow() {
 const viewFromHash = (): View => (window.location.hash === '#settings' ? 'settings' : 'events');
 
 function EmptyState({ connected }: { connected: boolean }) {
+  const t = useT();
   return (
     <div className="empty">
       <LeafIcon size={32} style={{ color: 'var(--accent-strong)' }} />
-      <h2>{connected ? 'MongoDB MCP 호출을 기다리는 중' : '서버에 연결하는 중…'}</h2>
-      <p>Claude Code가 mongodb MCP 도구(find, aggregate, update-many …)를 호출하면 읽은 문서, 쿼리 결과, 쓰기 diff가 여기에 Compass처럼 표시됩니다.</p>
+      <h2>{connected ? t.empty.waiting : t.empty.connecting}</h2>
+      <p>{t.empty.body}</p>
     </div>
   );
+}
+
+/** The language comes from the server's settings so the native window and browser tabs agree. */
+function useLocale() {
+  const [preference, setPreference] = useState<LocalePreference>('auto');
+  useEffect(() => {
+    getSettings()
+      .then((snapshot) => setPreference(snapshot.settings.locale))
+      .catch(() => undefined);
+  }, []);
+  const locale = resolveLocale(preference);
+  const messages: Messages = MESSAGES[locale];
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    setNativeMenu(messages.menu);
+  }, [locale, messages]);
+  return [messages, setPreference] as const;
 }
 
 /** `#settings` routing, shared by the gear button, the menu-bar item and `open.mjs --settings`. */
@@ -61,6 +81,7 @@ export default function App() {
   const [filters, setFilters] = useState<SidebarFilters>({ kind: 'all', query: '' });
   const [view, setView] = useView();
   const noteUnseen = useUnseenTitle(!isNativeApp());
+  const [messages, setLocalePreference] = useLocale();
 
   const onAdded = useCallback(
     ({ summary, reveal }: AddedMessage) => {
@@ -72,9 +93,13 @@ export default function App() {
     [follow, noteUnseen],
   );
 
-  const onConfig = useCallback(({ effectiveViewer }: ConfigMessage) => {
-    if (isNativeApp() && effectiveViewer === 'browser') quitNativeApp();
-  }, []);
+  const onConfig = useCallback(
+    ({ settings, effectiveViewer }: ConfigMessage) => {
+      setLocalePreference(settings.locale);
+      if (isNativeApp() && effectiveViewer === 'browser') quitNativeApp();
+    },
+    [setLocalePreference],
+  );
 
   const onNavigate = useCallback(
     (next: string) => {
@@ -100,7 +125,7 @@ export default function App() {
   }, [follow]);
 
   const onClear = async () => {
-    if (!window.confirm('캡처된 모든 호출 기록을 삭제할까요?')) return;
+    if (!window.confirm(messages.confirmClear)) return;
     await clearEvents().catch(() => undefined);
     setSelectedId(null);
   };
@@ -122,6 +147,7 @@ export default function App() {
     );
 
   return (
+    <I18nContext.Provider value={messages}>
     <div className="app">
       <Sidebar
         events={events}
@@ -138,5 +164,6 @@ export default function App() {
       />
       <main className="main">{main}</main>
     </div>
+    </I18nContext.Provider>
   );
 }

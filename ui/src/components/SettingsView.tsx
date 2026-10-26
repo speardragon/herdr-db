@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { getSettings, saveSettings, type AgentHookStatus, type AutoOpen, type Settings, type SettingsSnapshot, type ViewerMode } from '../lib/settings';
+import { useT, type LocalePreference, type Messages } from '../lib/i18n';
 import { Banner } from './Banner';
 
 type SaveState = { kind: 'idle' } | { kind: 'saving' } | { kind: 'saved' } | { kind: 'error'; message: string };
@@ -17,21 +18,13 @@ function Section({ title, description, children }: { title: string; description?
 }
 
 function ViewerChoice({ value, appBuilt, onChange }: { value: ViewerMode; appBuilt: boolean; onChange: (mode: ViewerMode) => void }) {
+  const t = useT();
   const options: Array<{ mode: ViewerMode; title: string; body: string; disabled?: boolean }> = [
-    {
-      mode: 'app',
-      title: '네이티브 창',
-      body: appBuilt ? '호출이 오면 터미널 포커스를 빼앗지 않고 창이 앞으로 뜹니다. Dock 대신 메뉴바에 있습니다.' : '앱이 빌드되지 않았습니다. npm run build:mac 실행 후 선택할 수 있습니다.',
-      disabled: !appBuilt,
-    },
-    {
-      mode: 'browser',
-      title: '브라우저 (로컬 포트)',
-      body: '기본 브라우저 탭에서 봅니다. 이미 열린 탭은 앞으로 끌어올 수 없어서, 새 호출은 탭 제목의 숫자로 알려줍니다.',
-    },
+    { mode: 'app', title: t.settings.appTitle, body: appBuilt ? t.settings.appBody : t.settings.appMissing, disabled: !appBuilt },
+    { mode: 'browser', title: t.settings.browserTitle, body: t.settings.browserBody },
   ];
   return (
-    <div className="choice-grid" role="radiogroup" aria-label="띄우는 방식">
+    <div className="choice-grid" role="radiogroup" aria-label={t.settings.viewer}>
       {options.map((option) => (
         <button
           key={option.mode}
@@ -76,17 +69,18 @@ function NumberField({ value, min, max, suffix, onCommit }: { value: number; min
   );
 }
 
-function hookState(hooks: AgentHookStatus): string {
+function hookState(hooks: AgentHookStatus, t: Messages): string {
   if (hooks.events.length) return hooks.events.join(', ');
-  return hooks.detected ? '설치되지 않음 — node bin/install-hooks.mjs' : '이 맥에서 찾지 못함';
+  return hooks.detected ? t.settings.notInstalled : t.settings.notFound;
 }
 
 function StatusList({ status }: { status: SettingsSnapshot['status'] }) {
+  const t = useT();
   const rows: Array<[string, ReactNode]> = [
-    ...Object.values(status.hooks).map((hooks): [string, ReactNode] => [`${hooks.label} 훅`, hookState(hooks)]),
-    ['서버', `http://127.0.0.1:${status.port}/`],
-    ['연결된 뷰어', `창 ${status.viewers.app} · 브라우저 탭 ${status.viewers.browser}`],
-    ['저장된 호출', `${status.events}개 · ${status.home}`],
+    ...Object.values(status.hooks).map((hooks): [string, ReactNode] => [t.settings.hooks(hooks.label), hookState(hooks, t)]),
+    [t.settings.server, `http://127.0.0.1:${status.port}/`],
+    [t.settings.viewers, t.settings.viewersValue(status.viewers.app, status.viewers.browser)],
+    [t.settings.stored, t.settings.storedValue(status.events, status.home)],
   ];
   return (
     <dl className="status-list">
@@ -100,7 +94,20 @@ function StatusList({ status }: { status: SettingsSnapshot['status'] }) {
   );
 }
 
+function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Array<[T, string]>; onChange: (value: T) => void }) {
+  return (
+    <div className="segmented" role="group" aria-label={label}>
+      {options.map(([option, text]) => (
+        <button key={option} type="button" aria-pressed={value === option} onClick={() => onChange(option)}>
+          {text}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function SettingsView({ onClose }: { onClose: () => void }) {
+  const t = useT();
   const [snapshot, setSnapshot] = useState<SettingsSnapshot | null>(null);
   const [save, setSave] = useState<SaveState>({ kind: 'idle' });
 
@@ -121,52 +128,57 @@ export function SettingsView({ onClose }: { onClose: () => void }) {
   };
 
   const autoOpenOptions: Array<[AutoOpen, string]> = [
-    ['always', '모든 호출'],
-    ['writes', '쓰기만'],
-    ['never', '띄우지 않음'],
+    ['always', t.settings.always],
+    ['writes', t.settings.writes],
+    ['never', t.settings.never],
+  ];
+  // Language names are written in their own language so they can be found from either one.
+  const localeOptions: Array<[LocalePreference, string]> = [
+    ['auto', t.settings.system],
+    ['en', 'English'],
+    ['ko', '한국어'],
   ];
 
   return (
     <>
       <header className="event-header">
         <div className="breadcrumb">
-          <span>설정</span>
+          <span>{t.settings.title}</span>
           <span className="spacer" />
-          <span className="save-state">{save.kind === 'saving' ? '저장 중…' : save.kind === 'saved' ? '저장됨' : ''}</span>
+          <span className="save-state">{save.kind === 'saving' ? t.settings.saving : save.kind === 'saved' ? t.settings.saved : ''}</span>
           <button type="button" className="text-button" onClick={onClose}>
-            닫기
+            {t.settings.close}
           </button>
         </div>
       </header>
       <div className="content settings">
-        {save.kind === 'error' && <Banner variant="danger" title="설정을 저장하지 못했습니다">{save.message}</Banner>}
+        {save.kind === 'error' && <Banner variant="danger" title={t.settings.saveFailed}>{save.message}</Banner>}
         {snapshot && (
           <>
             {Object.values(snapshot.status.hooks).some((hooks) => hooks.nodePathMissing) && (
-              <Banner variant="warn" title="훅이 가리키는 node 경로가 없습니다">node bin/install-hooks.mjs 를 다시 실행하세요.</Banner>
+              <Banner variant="warn" title={t.settings.nodeMissingTitle}>
+                {t.settings.nodeMissing}
+              </Banner>
             )}
-            <Section title="띄우는 방식" description="바꾸면 바로 새 방식으로 열리고, 네이티브 창은 닫힙니다.">
+            <Section title={t.settings.language} description={t.settings.languageHelp}>
+              <Segmented label={t.settings.language} value={snapshot.settings.locale} options={localeOptions} onChange={(locale) => update({ locale })} />
+            </Section>
+            <Section title={t.settings.viewer} description={t.settings.viewerHelp}>
               <ViewerChoice value={snapshot.settings.viewer} appBuilt={snapshot.status.appBuilt} onChange={(viewer) => update({ viewer })} />
             </Section>
-            <Section title="자동으로 띄우기" description="MongoDB MCP 호출이 들어왔을 때 뷰어를 앞으로 가져올지 정합니다. 기록은 항상 남습니다.">
-              <div className="segmented" role="group" aria-label="자동으로 띄우기">
-                {autoOpenOptions.map(([mode, label]) => (
-                  <button key={mode} type="button" aria-pressed={snapshot.settings.autoOpen === mode} onClick={() => update({ autoOpen: mode })}>
-                    {label}
-                  </button>
-                ))}
-              </div>
+            <Section title={t.settings.autoOpen} description={t.settings.autoOpenHelp}>
+              <Segmented label={t.settings.autoOpen} value={snapshot.settings.autoOpen} options={autoOpenOptions} onChange={(autoOpen) => update({ autoOpen })} />
             </Section>
-            <Section title="쓰기 스냅샷" description="update-many / delete-many 직전에 읽어 두는 문서 수입니다. diff는 이 문서들로 만듭니다.">
-              <NumberField value={snapshot.settings.snapshotLimit} min={1} max={500} suffix="개 문서" onCommit={(snapshotLimit) => update({ snapshotLimit })} />
+            <Section title={t.settings.snapshot} description={t.settings.snapshotHelp}>
+              <NumberField value={snapshot.settings.snapshotLimit} min={1} max={500} suffix={t.settings.snapshotSuffix} onCommit={(snapshotLimit) => update({ snapshotLimit })} />
             </Section>
-            <Section title="보관" description="캡처된 문서에는 실제 데이터가 들어 있습니다. 둘 중 하나라도 넘으면 오래된 기록부터 지웁니다.">
+            <Section title={t.settings.retention} description={t.settings.retentionHelp}>
               <div className="inline-fields">
-                <NumberField value={snapshot.settings.maxEvents} min={10} max={10000} suffix="개까지" onCommit={(maxEvents) => update({ maxEvents })} />
-                <NumberField value={snapshot.settings.maxAgeDays} min={1} max={365} suffix="일까지" onCommit={(maxAgeDays) => update({ maxAgeDays })} />
+                <NumberField value={snapshot.settings.maxEvents} min={10} max={10000} suffix={t.settings.maxEventsSuffix} onCommit={(maxEvents) => update({ maxEvents })} />
+                <NumberField value={snapshot.settings.maxAgeDays} min={1} max={365} suffix={t.settings.maxAgeSuffix} onCommit={(maxAgeDays) => update({ maxAgeDays })} />
               </div>
             </Section>
-            <Section title="상태" description="Codex 훅은 Codex에서 /hooks를 열어 한 번 신뢰해야 동작합니다. Node.js 경로나 플러그인 위치가 바뀌어 훅 명령이 달라지면 다시 신뢰해야 합니다.">
+            <Section title={t.settings.status} description={t.settings.statusHelp}>
               <StatusList status={snapshot.status} />
             </Section>
           </>

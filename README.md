@@ -44,6 +44,7 @@ window next to your terminal, formatted the way MongoDB Compass would show it.
   or change a tool call. The window comes forward without stealing keyboard focus.
 - **Native or browser** — a tiny menu-bar app (no Dock icon) or a tab on a local port, switchable
   from the settings screen at any time.
+- **English and Korean** — follows the system language, or pick one in settings.
 - **Light and dark** — follows the system appearance.
 
 <table>
@@ -177,6 +178,7 @@ status for each agent, connected viewers and how many calls are stored.
 | --- | --- | --- |
 | `viewer` | `app` | `app` (native window) or `browser` (a tab on the local port) |
 | `autoOpen` | `always` | `always`, `writes` (only bring the viewer up for writes) or `never` (record silently) |
+| `locale` | `auto` | `auto` (system language), `en` or `ko`. The menu-bar menu follows it too |
 | `snapshotLimit` | `50` | Documents read before `update-many` / `delete-many` |
 | `maxEvents` | `500` | Older calls are deleted beyond this… |
 | `maxAgeDays` | `14` | …or after this many days |
