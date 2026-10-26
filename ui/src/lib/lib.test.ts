@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { bsonTypeOf, displayValue, entriesOf, fromEJSON, valueKey } from './bson';
 import { diffDocuments, diffStats, pairDocuments, type DiffNode } from './diff';
-import { toShell } from './shell';
+import { toShell, toShellTokens } from './shell';
 import { MESSAGES, resolveLocale } from './i18n';
 import { rowToggle } from './toggle';
 
@@ -116,6 +116,38 @@ describe('shell formatting', () => {
     const text = toShell({ $project: { aaaaaaaaaa: 1, bbbbbbbbbb: 1, cccccccccc: 1, dddddddddd: 1, eeeeeeeeee: 1, ffffffffff: 1 } });
     expect(text.split('\n').length).toBeGreaterThan(3);
     expect(text).toContain('\n    aaaaaaaaaa: 1,');
+  });
+
+  it('tags each piece of the mongosh text with its role', () => {
+    const value = { 'verb.id': 'x', _id: { $oid: '6adedc58761ef473c665d0fb' }, n: { $gte: 2 }, at: { $date: '2024-01-01T00:00:00Z' }, ok: true, gone: null };
+    const tokens = toShellTokens(value).filter((token) => token.kind !== 'space' && token.kind !== 'punct');
+    expect(tokens.map((token) => [token.kind, token.text])).toEqual([
+      ['key', "'verb.id'"],
+      ['string', "'x'"],
+      ['key', '_id'],
+      ['objectid', "ObjectId('6adedc58761ef473c665d0fb')"],
+      ['key', 'n'],
+      ['operator', '$gte'],
+      ['number', '2'],
+      ['key', 'at'],
+      ['number', "ISODate('2024-01-01T00:00:00.000Z')"],
+      ['key', 'ok'],
+      ['boolean', 'true'],
+      ['key', 'gone'],
+      ['null', 'null'],
+    ]);
+  });
+
+  it('joins its tokens back into exactly the mongosh text, inline or broken over lines', () => {
+    const values = [
+      { $or: [{ a: 1 }, { b: { $gt: 2 } }] },
+      { $project: { aaaaaaaaaa: 1, bbbbbbbbbb: 1, cccccccccc: 1, dddddddddd: 1, eeeeeeeeee: 1, ffffffffff: 1 } },
+      [],
+      'plain',
+    ];
+    for (const value of values) {
+      expect(toShellTokens(value).map((token) => token.text).join('')).toBe(toShell(value));
+    }
   });
 });
 

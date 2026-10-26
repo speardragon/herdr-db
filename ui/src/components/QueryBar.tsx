@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useT } from '../lib/i18n';
-import { toShell } from '../lib/shell';
+import { ShellText } from './Highlight';
 
 function isEmpty(value: unknown) {
   return value == null || (typeof value === 'object' && Object.keys(value as object).length === 0);
@@ -8,7 +8,9 @@ function isEmpty(value: unknown) {
 
 function QueryInput({ value, placeholder }: { value: unknown; placeholder: string }) {
   if (isEmpty(value)) return <div className="query-input placeholder">{placeholder}</div>;
-  return <div className="query-input">{toShell(value)}</div>;
+  return <div className="query-input">
+      <ShellText value={value} />
+    </div>;
 }
 
 export function QueryRow({ label, value, placeholder = '{}' }: { label: string; value: unknown; placeholder?: string }) {
@@ -25,7 +27,9 @@ function Option({ label, value }: { label: string; value: unknown }) {
   return (
     <span className="query-option">
       <span className="query-row-label">{label}</span>
-      <span className="query-input">{typeof value === 'number' ? String(value) : toShell(value)}</span>
+      <span className="query-input">
+        <ShellText value={value} />
+      </span>
     </span>
   );
 }
@@ -45,7 +49,7 @@ export function QueryBar({ input, children }: { input: Record<string, unknown>; 
           <Option label="Sort" value={input.sort} />
           <Option label="Skip" value={input.skip} />
           <Option label="Limit" value={input.limit} />
-          {input.upsert !== undefined && <Option label="Upsert" value={String(input.upsert)} />}
+          {input.upsert !== undefined && <Option label="Upsert" value={input.upsert} />}
         </div>
       )}
     </div>
@@ -72,7 +76,9 @@ export function PipelineView({ pipeline }: { pipeline: unknown }) {
               <span className="stage-operator">{operator}</span>
               {writes && <span className="badge badge-write">{t.query.writes}</span>}
             </div>
-            <pre className="stage-body">{toShell(body)}</pre>
+            <pre className="stage-body">
+              <ShellText value={body} />
+            </pre>
           </div>
         );
       })}

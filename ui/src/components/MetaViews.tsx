@@ -1,4 +1,4 @@
-import { toShell } from '../lib/shell';
+import { ShellText } from './Highlight';
 import { useT } from '../lib/i18n';
 import type { CapturedEvent } from '../lib/types';
 import { Banner } from './Banner';
@@ -50,7 +50,7 @@ function IndexesView({ event }: { event: CapturedEvent }) {
       {indexes.map((index, i) => (
         <div className="name-card" key={index.name ?? i}>
           <span>{index.name}</span>
-          <span className="sub">{toShell((index as { key?: unknown }).key ?? {})}</span>
+          <span className="sub"><ShellText value={(index as { key?: unknown }).key ?? {}} /></span>
         </div>
       ))}
     </section>

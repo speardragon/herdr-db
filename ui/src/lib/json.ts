@@ -1,15 +1,12 @@
-export type JsonTokenKind = 'key' | 'ejson' | 'string' | 'number' | 'boolean' | 'null' | 'objectid' | 'punct' | 'space';
+import type { Token, TokenKind } from './tokens';
 
-export interface JsonToken {
-  kind: JsonTokenKind;
-  text: string;
-}
+export type { Token as JsonToken };
 
 // One alternative per token: string (+ an optional trailing colon that makes it a key), number, literal, punctuation, whitespace.
 const TOKEN = /("(?:[^"\\]|\\.)*")(?=(\s*:)?)|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|(true|false)|(null)|([{}[\],:])|(\s+)|(.)/gy;
 
 // The value inside an EJSON wrapper ({"$oid": "…"}) takes the color of the BSON type it stands for.
-const WRAPPER_KINDS: Record<string, JsonTokenKind> = {
+const WRAPPER_KINDS: Record<string, TokenKind> = {
   '"$oid"': 'objectid',
   '"$date"': 'number',
   '"$numberInt"': 'number',
@@ -18,7 +15,7 @@ const WRAPPER_KINDS: Record<string, JsonTokenKind> = {
   '"$numberDecimal"': 'number',
 };
 
-function kindOf(match: RegExpExecArray): JsonTokenKind {
+function kindOf(match: RegExpExecArray): TokenKind {
   if (match[1] !== undefined) return match[2] === undefined ? 'string' : match[1].startsWith('"$') ? 'ejson' : 'key';
   if (match[3] !== undefined) return 'number';
   if (match[4] !== undefined) return 'boolean';
@@ -28,9 +25,9 @@ function kindOf(match: RegExpExecArray): JsonTokenKind {
 }
 
 /** Splits JSON text (as EJSON.stringify prints it) into tokens; joining their text gives back the input. */
-export function tokenizeJson(text: string): JsonToken[] {
-  const tokens: JsonToken[] = [];
-  let wrapper: JsonTokenKind | undefined;
+export function tokenizeJson(text: string): Token[] {
+  const tokens: Token[] = [];
+  let wrapper: TokenKind | undefined;
   for (const match of text.matchAll(TOKEN)) {
     const kind = kindOf(match);
     const scalar = kind === 'string' || kind === 'number';

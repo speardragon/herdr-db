@@ -661,29 +661,34 @@ code,
   word-break: break-word;
 }
 
-.json-key {
+.tok-key {
   color: var(--key);
 }
 
-.json-ejson,
-.json-null,
-.json-punct {
+.tok-operator {
+  color: var(--key);
+  font-weight: 600;
+}
+
+.tok-ejson,
+.tok-null,
+.tok-punct {
   color: var(--text-faint);
 }
 
-.json-string {
+.tok-string {
   color: var(--value-string);
 }
 
-.json-number {
+.tok-number {
   color: var(--value-number);
 }
 
-.json-boolean {
+.tok-boolean {
   color: var(--value-boolean);
 }
 
-.json-objectid {
+.tok-objectid {
   color: var(--value-objectid);
 }
 
