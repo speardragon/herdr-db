@@ -23,6 +23,9 @@ export const ko: Messages = {
     follow: '새 호출이 오면 자동으로 보기',
     today: '오늘',
     yesterday: '어제',
+    collapse: '사이드바 접기',
+    expand: '사이드바 펼치기',
+    resize: '사이드바 크기 조절',
   },
   summary: {
     failed: '실패',

@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { clearEvents, useCapturedEvent, useEventFeed, type AddedMessage, type ConfigMessage } from './lib/api';
 import { I18nContext, MESSAGES, resolveLocale, useT, type LocalePreference, type Messages } from './lib/i18n';
 import { activateWindow, isNativeApp, quitNativeApp, revealWindow, setNativeMenu } from './lib/native';
 import { getSettings } from './lib/settings';
+import { SIDEBAR } from './lib/sidebar-layout';
 import { useUnseenTitle } from './lib/title';
 import { EventView } from './components/EventView';
 import { LeafIcon } from './components/icons';
 import { SettingsView } from './components/SettingsView';
 import { Sidebar, type SidebarFilters } from './components/Sidebar';
+import { SidebarRail } from './components/SidebarRail';
+import { SidebarResizer, useSidebarLayout } from './components/SidebarResizer';
 
 const FOLLOW_KEY = 'herdr-db.follow';
 
@@ -79,6 +82,7 @@ export default function App() {
   const [freshId, setFreshId] = useState<string | null>(null);
   const [follow, setFollow] = useState(readFollow);
   const [filters, setFilters] = useState<SidebarFilters>({ kind: 'all', query: '' });
+  const [layout, setLayout] = useSidebarLayout();
   const [view, setView] = useView();
   const noteUnseen = useUnseenTitle(!isNativeApp());
   const [messages, setLocalePreference] = useLocale();
@@ -135,6 +139,9 @@ export default function App() {
     setView('events');
   };
 
+  const onSettings = () => setView(view === 'settings' ? 'events' : 'settings');
+  const sidebarWidth = layout.collapsed ? SIDEBAR.rail : layout.width;
+
   const main =
     view === 'settings' ? (
       <SettingsView onClose={() => setView('events')} />
@@ -148,20 +155,26 @@ export default function App() {
 
   return (
     <I18nContext.Provider value={messages}>
-    <div className="app">
-      <Sidebar
-        events={events}
-        selectedId={view === 'events' ? selectedId : null}
-        freshId={freshId}
-        filters={filters}
-        follow={follow}
-        connected={connected}
-        onSelect={onSelect}
-        onFilters={setFilters}
-        onFollow={setFollow}
-        onClear={onClear}
-        onSettings={() => setView(view === 'settings' ? 'events' : 'settings')}
-      />
+    <div className={`app${layout.collapsed ? ' is-sidebar-collapsed' : ''}`} style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}>
+      {layout.collapsed ? (
+        <SidebarRail connected={connected} onExpand={() => setLayout({ ...layout, collapsed: false })} onSettings={onSettings} />
+      ) : (
+        <Sidebar
+          events={events}
+          selectedId={view === 'events' ? selectedId : null}
+          freshId={freshId}
+          filters={filters}
+          follow={follow}
+          connected={connected}
+          onSelect={onSelect}
+          onFilters={setFilters}
+          onFollow={setFollow}
+          onClear={onClear}
+          onSettings={onSettings}
+          onCollapse={() => setLayout({ ...layout, collapsed: true })}
+        />
+      )}
+      <SidebarResizer layout={layout} onChange={setLayout} />
       <main className="main">{main}</main>
     </div>
     </I18nContext.Provider>

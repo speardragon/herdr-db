@@ -3,7 +3,7 @@ import { useT, type Messages } from '../lib/i18n';
 import { agentLabel, type EventSummary } from '../lib/types';
 import { AgentLogo } from './AgentLogo';
 import { KindBadge } from './EventView';
-import { GearIcon, LeafIcon, TrashIcon } from './icons';
+import { GearIcon, LeafIcon, SidebarIcon, TrashIcon } from './icons';
 
 export type KindFilter = 'all' | 'read' | 'write';
 
@@ -103,9 +103,10 @@ interface Props {
   onFollow: (follow: boolean) => void;
   onClear: () => void;
   onSettings: () => void;
+  onCollapse: () => void;
 }
 
-export function Sidebar({ events, selectedId, freshId, filters, follow, connected, onSelect, onFilters, onFollow, onClear, onSettings }: Props) {
+export function Sidebar({ events, selectedId, freshId, filters, follow, connected, onSelect, onFilters, onFollow, onClear, onSettings, onCollapse }: Props) {
   const t = useT();
   const groups = useMemo(() => groupByDay(events.filter((event) => matches(event, filters)), t), [events, filters, t]);
   const kinds: Array<[KindFilter, string]> = [
@@ -126,6 +127,9 @@ export function Sidebar({ events, selectedId, freshId, filters, follow, connecte
             {connected ? 'live' : 'offline'}
           </span>
           <div className="brand-actions">
+            <button type="button" className="icon-button" title={t.sidebar.collapse} aria-label={t.sidebar.collapse} onClick={onCollapse}>
+              <SidebarIcon open />
+            </button>
             <button type="button" className="icon-button" title={t.sidebar.settings} aria-label={t.sidebar.settings} onClick={onSettings}>
               <GearIcon />
             </button>

@@ -67,3 +67,14 @@ export function LeafIcon(props: IconProps) {
     </Svg>
   );
 }
+
+/** A window with its left panel; `open` draws the panel filled. */
+export function SidebarIcon({ open, ...rest }: IconProps & { open: boolean }) {
+  return (
+    <Svg {...rest}>
+      <rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M6.5 3v10" stroke="currentColor" strokeWidth="1.3" />
+      {open && <rect x="2.65" y="3.65" width="3.85" height="8.7" rx="1.35" fill="currentColor" opacity="0.35" />}
+    </Svg>
+  );
+}

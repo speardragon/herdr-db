@@ -24,6 +24,9 @@ export const en = {
     follow: 'Jump to new calls automatically',
     today: 'Today',
     yesterday: 'Yesterday',
+    collapse: 'Collapse sidebar',
+    expand: 'Expand sidebar',
+    resize: 'Resize sidebar',
   },
   summary: {
     failed: 'failed',
