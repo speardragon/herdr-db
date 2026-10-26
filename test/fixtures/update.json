@@ -1,0 +1,31 @@
+{
+  "session_id": "11111111-2222-3333-4444-555555555555",
+  "transcript_path": "/tmp/project/transcript.jsonl",
+  "cwd": "/tmp/project",
+  "permission_mode": "auto",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "mcp__local-mongodb__update-many",
+  "tool_input": {
+    "connectionId": "preconfigured",
+    "database": "herdr_db_test",
+    "collection": "users",
+    "filter": {
+      "name": "Lee"
+    },
+    "update": {
+      "$set": {
+        "age": 26
+      }
+    }
+  },
+  "tool_response": "{\"database\":\"herdr_db_test\",\"collection\":\"users\",\"matchedCount\":1,\"modifiedCount\":1,\"upsertedCount\":0}",
+  "tool_use_id": "toolu_011wD1sLRtjPFKoKyQidhuaA",
+  "duration_ms": 36,
+  "mcp_server": {
+    "name": "local-mongodb",
+    "source": "dynamic"
+  }
+}

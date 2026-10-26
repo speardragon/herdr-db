@@ -1,0 +1,106 @@
+/* Values from MongoDB's LeafyGreen palette and the Compass document view (variantColors). */
+:root {
+  color-scheme: light dark;
+  --font-ui: 'Euclid Circular A', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
+  --font-code: 'Source Code Pro', 'SF Mono', Menlo, monospace;
+
+  --bg: #ffffff;
+  --bg-sidebar: #f9fbfa;
+  --bg-subtle: #f9fbfa;
+  --bg-hover: #e8edeb;
+  --bg-selected: #e3fcf7;
+  --border: #e8edeb;
+  --border-strong: #c1c7c6;
+  --text: #001e2b;
+  --text-muted: #5c6c75;
+  --text-faint: #889397;
+  --accent: #00684a;
+  --accent-strong: #00a35c;
+  --link: #016bf8;
+  --key: #001e2b;
+
+  --value-number: #016ee9;
+  --value-boolean: #cc3887;
+  --value-string: #12824d;
+  --value-objectid: #d83713;
+
+  --diff-added: #71f6ba;
+  --diff-removed: #ffcdc7;
+  --row-removed: #ffeae5;
+  --row-added: #e3fcf7;
+  --row-modified: #fef7db;
+
+  --badge-read-bg: #e1f7ff;
+  --badge-read-fg: #1254b7;
+  --badge-write-bg: #fef7db;
+  --badge-write-fg: #944f01;
+  --badge-admin-bg: #ffeae5;
+  --badge-admin-fg: #970606;
+  --badge-meta-bg: #e8edeb;
+  --badge-meta-fg: #3d4f58;
+  --badge-ok-bg: #e3fcf7;
+  --badge-ok-fg: #00684a;
+
+  --banner-info-bg: #e1f7ff;
+  --banner-info-border: #c3e7fe;
+  --banner-warn-bg: #fef7db;
+  --banner-warn-border: #ffec9e;
+  --banner-danger-bg: #ffeae5;
+  --banner-danger-border: #ffcdc7;
+  --banner-success-bg: #e3fcf7;
+  --banner-success-border: #c0fae6;
+
+  --shadow: 0 4px 10px -4px rgba(0, 30, 43, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #001e2b;
+    --bg-sidebar: #112733;
+    --bg-subtle: #112733;
+    --bg-hover: #112733;
+    --bg-selected: #023430;
+    --border: #3d4f58;
+    --border-strong: #5c6c75;
+    --text: #e8edeb;
+    --text-muted: #c1c7c6;
+    --text-faint: #889397;
+    --accent: #00ed64;
+    --accent-strong: #00ed64;
+    --link: #0498ec;
+    --key: #e8edeb;
+
+    --value-number: #2dc4ff;
+    --value-boolean: #ff7dc3;
+    --value-string: #35de7b;
+    --value-objectid: #ff6f44;
+
+    --diff-added: #00684a;
+    --diff-removed: #5b0000;
+    --row-removed: #5b0000;
+    --row-added: #023430;
+    --row-modified: #4c2100;
+
+    --badge-read-bg: #0c2657;
+    --badge-read-fg: #c3e7fe;
+    --badge-write-bg: #4c2100;
+    --badge-write-fg: #ffec9e;
+    --badge-admin-bg: #5b0000;
+    --badge-admin-fg: #ffcdc7;
+    --badge-meta-bg: #1c2d38;
+    --badge-meta-fg: #c1c7c6;
+    --badge-ok-bg: #023430;
+    --badge-ok-fg: #71f6ba;
+
+    --banner-info-bg: #0c2657;
+    --banner-info-border: #083c90;
+    --banner-warn-bg: #4c2100;
+    --banner-warn-border: #944f01;
+    --banner-danger-bg: #5b0000;
+    --banner-danger-border: #970606;
+    --banner-success-bg: #023430;
+    --banner-success-border: #00684a;
+
+    --shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.6);
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "session_id": "11111111-2222-3333-4444-555555555555",
+  "transcript_path": "/tmp/project/transcript.jsonl",
+  "cwd": "/tmp/project",
+  "permission_mode": "auto",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "mcp__local-mongodb__find",
+  "tool_input": {
+    "connectionId": "preconfigured",
+    "database": "herdr_db_test",
+    "collection": "users",
+    "filter": {},
+    "limit": 1000
+  },
+  "tool_response": "{\"documents\":[{\"_id\":{\"$oid\":\"6adedc58761ef473c665d0fb\"},\"name\":\"Kim\",\"age\":31,\"score\":{\"$numberLong\":\"9007199254740992\"},\"ratio\":1.5,\"joined\":{\"$date\":\"2024-03-01T09:00:00.000Z\"},\"tags\":[\"a\",\"b\"],\"addr\":{\"city\":\"Seoul\",\"zip\":\"04524\"},\"active\":true,\"dec\":{\"$numberDecimal\":\"12.34\"},\"nothing\":null},{\"_id\":{\"$oid\":\"6adedc58761ef473c665d0fc\"},\"name\":\"Lee\",\"age\":25,\"ratio\":2,\"joined\":{\"$date\":\"2026-10-26T04:51:36.019Z\"},\"tags\":[],\"addr\":{\"city\":\"Busan\"},\"active\":false}],\"queryResultsCount\":2,\"appliedLimits\":[\"config.maxDocumentsPerQuery\"]}",
+  "tool_use_id": "toolu_01X32MvXX2ZvE9YKL3JhpwPC",
+  "duration_ms": 483,
+  "mcp_server": {
+    "name": "local-mongodb",
+    "source": "dynamic"
+  }
+}

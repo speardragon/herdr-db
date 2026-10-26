@@ -1,0 +1,49 @@
+id = "ray.herdr-db"
+name = "Herdr DB"
+version = "0.1.0"
+min_herdr_version = "0.7.5"
+description = "See what Claude Code and Codex read and wrote through the MongoDB MCP server: every query, result and write diff opens in a Compass-style macOS window."
+platforms = ["macos", "linux"]
+
+[[build]]
+command = ["node", "-e", "const major = Number(process.versions.node.split('.')[0]); if (major < 22) { console.error('Node.js >= 22 required'); process.exit(1); }"]
+
+[[build]]
+command = ["npm", "ci", "--omit=dev"]
+
+[[build]]
+command = ["npm", "--prefix", "ui", "ci"]
+
+[[build]]
+command = ["npm", "--prefix", "ui", "run", "build"]
+
+[[build]]
+command = ["sh", "mac/build.sh"]
+platforms = ["macos"]
+
+[[build]]
+command = ["node", "bin/install-hooks.mjs"]
+
+[[actions]]
+id = "open"
+title = "Herdr DB: Open viewer"
+contexts = ["global", "workspace", "pane"]
+command = ["node", "bin/open.mjs"]
+
+[[actions]]
+id = "settings"
+title = "Herdr DB: Settings"
+contexts = ["global", "workspace", "pane"]
+command = ["node", "bin/open.mjs", "--settings"]
+
+[[actions]]
+id = "install-hooks"
+title = "Herdr DB: Install or repair Claude Code / Codex hooks"
+contexts = ["global", "workspace"]
+command = ["node", "bin/install-hooks.mjs"]
+
+[[actions]]
+id = "uninstall-hooks"
+title = "Herdr DB: Uninstall Claude Code / Codex hooks"
+contexts = ["global", "workspace"]
+command = ["node", "bin/uninstall-hooks.mjs"]

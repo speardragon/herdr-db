@@ -1,0 +1,80 @@
+import type { ReactNode } from 'react';
+import { toShell } from '../lib/shell';
+
+function isEmpty(value: unknown) {
+  return value == null || (typeof value === 'object' && Object.keys(value as object).length === 0);
+}
+
+function QueryInput({ value, placeholder }: { value: unknown; placeholder: string }) {
+  if (isEmpty(value)) return <div className="query-input placeholder">{placeholder}</div>;
+  return <div className="query-input">{toShell(value)}</div>;
+}
+
+export function QueryRow({ label, value, placeholder = '{}' }: { label: string; value: unknown; placeholder?: string }) {
+  return (
+    <div className="query-row">
+      <span className="query-row-label">{label}</span>
+      <QueryInput value={value} placeholder={placeholder} />
+    </div>
+  );
+}
+
+function Option({ label, value }: { label: string; value: unknown }) {
+  if (value === undefined || isEmpty(value)) return null;
+  return (
+    <span className="query-option">
+      <span className="query-row-label">{label}</span>
+      <span className="query-input">{typeof value === 'number' ? String(value) : toShell(value)}</span>
+    </span>
+  );
+}
+
+/** Read-only version of Compass's query bar, filled with what the agent asked for. */
+export function QueryBar({ input, children }: { input: Record<string, unknown>; children?: ReactNode }) {
+  const filter = input.filter ?? input.query;
+  const options = (['projection', 'sort', 'limit', 'skip', 'upsert'] as const).filter((key) => input[key] !== undefined);
+  return (
+    <div className="query-bar">
+      <QueryRow label="Filter" value={filter} placeholder="{} (all documents)" />
+      {children}
+      {options.length > 0 && (
+        <div className="query-options">
+          <Option label="Project" value={input.projection} />
+          <Option label="Sort" value={input.sort} />
+          <Option label="Skip" value={input.skip} />
+          <Option label="Limit" value={input.limit} />
+          {input.upsert !== undefined && <Option label="Upsert" value={String(input.upsert)} />}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Aggregation pipeline as Compass-like stage cards. */
+export function PipelineView({ pipeline }: { pipeline: unknown }) {
+  const stages = Array.isArray(pipeline) ? pipeline : [];
+  return (
+    <section className="pipeline" aria-label="Pipeline">
+      <div className="toolbar">
+        <strong>Pipeline</strong>
+        <span>
+          {stages.length} {stages.length === 1 ? 'stage' : 'stages'}
+        </span>
+      </div>
+      {stages.map((stage, index) => {
+        const [operator = '?', body] = Object.entries((stage ?? {}) as Record<string, unknown>)[0] ?? [];
+        const writes = operator === '$out' || operator === '$merge';
+        return (
+          <div className="stage" key={index}>
+            <div className="stage-header">
+              <span className="event-time">Stage {index + 1}</span>
+              <span className="stage-operator">{operator}</span>
+              {writes && <span className="badge badge-write">writes</span>}
+            </div>
+            <pre className="stage-body">{toShell(body)}</pre>
+          </div>
+        );
+      })}
+    </section>
+  );
+}

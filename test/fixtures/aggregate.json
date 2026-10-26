@@ -1,0 +1,33 @@
+{
+  "session_id": "11111111-2222-3333-4444-555555555555",
+  "transcript_path": "/tmp/project/transcript.jsonl",
+  "cwd": "/tmp/project",
+  "permission_mode": "auto",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "mcp__local-mongodb__aggregate",
+  "tool_input": {
+    "connectionId": "preconfigured",
+    "database": "herdr_db_test",
+    "collection": "users",
+    "pipeline": [
+      {
+        "$group": {
+          "_id": "$active",
+          "n": {
+            "$sum": 1
+          }
+        }
+      }
+    ]
+  },
+  "tool_response": "{\"documents\":[{\"_id\":true,\"n\":1},{\"_id\":false,\"n\":1}],\"count\":2,\"appliedLimits\":[]}",
+  "tool_use_id": "toolu_0113neCcPefoXzy9HHeCjiqY",
+  "duration_ms": 67,
+  "mcp_server": {
+    "name": "local-mongodb",
+    "source": "dynamic"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "herdr-db",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Compass-style viewer for the MongoDB MCP calls your coding agents make (Claude Code and Codex), packaged as a herdr plugin.",
+  "license": "MIT",
+  "author": "speardragon",
+  "homepage": "https://github.com/speardragon/herdr-db#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/speardragon/herdr-db.git"
+  },
+  "bugs": {
+    "url": "https://github.com/speardragon/herdr-db/issues"
+  },
+  "keywords": [
+    "herdr",
+    "herdr-plugin",
+    "mongodb",
+    "mcp",
+    "claude-code",
+    "codex",
+    "compass"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "build:ui": "npm --prefix ui run build",
+    "build:mac": "sh mac/build.sh",
+    "build": "npm run build:ui && npm run build:mac",
+    "serve": "node bin/server.mjs"
+  },
+  "dependencies": {
+    "mongodb": "^6.20.0",
+    "smol-toml": "^1.9.1"
+  }
+}
